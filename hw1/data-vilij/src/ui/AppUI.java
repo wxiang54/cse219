@@ -1,12 +1,19 @@
 package ui;
 
 import actions.AppActions;
+import javafx.geometry.Insets;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import vilij.templates.ApplicationTemplate;
 import vilij.templates.UITemplate;
+
+// my imports
+import javafx.scene.layout.HBox;
 
 /**
  * This is the application's user interface implementation.
@@ -40,6 +47,7 @@ public final class AppUI extends UITemplate {
     @Override
     protected void setToolBar(ApplicationTemplate applicationTemplate) {
         // TODO for homework 1
+        super.setToolBar(applicationTemplate);
     }
 
     @Override
@@ -61,10 +69,38 @@ public final class AppUI extends UITemplate {
     @Override
     public void clear() {
         // TODO for homework 1
+        
     }
 
     private void layout() {
         // TODO for homework 1
+        textArea = new TextArea();
+        
+        displayButton = new Button("Display");
+        String cssLayout = "-fx-border-color: red;\n" +
+                   "-fx-border-width: 3;\n" +
+                   "-fx-border-style: dashed;\n";
+        appPane.setStyle(cssLayout);
+        
+        VBox left = new VBox();
+        left.setPadding(new Insets(10));
+        left.getChildren().addAll(new Label("Data File"), textArea, displayButton);
+        
+        VBox right = new VBox();
+        right.setPadding(new Insets(10));
+     
+        NumberAxis xAxis = new NumberAxis(0, 20, 2);
+        NumberAxis yAxis = new NumberAxis(0, 20, 2);
+        chart = new ScatterChart<Number, Number>(xAxis, yAxis);
+        chart.setTitle("Data Visualization");
+        
+        right.getChildren().add(chart);
+                
+        HBox content = new HBox();
+        // add graph later
+        content.getChildren().addAll(left, right);
+        
+        appPane.getChildren().add(content);
     }
 
     private void setWorkspaceActions() {
