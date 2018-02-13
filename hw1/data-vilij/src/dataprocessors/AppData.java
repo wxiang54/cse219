@@ -5,6 +5,8 @@ import vilij.components.DataComponent;
 import vilij.templates.ApplicationTemplate;
 
 import java.nio.file.Path;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This is the concrete application-specific implementation of the data component defined by the Vilij framework.
@@ -28,7 +30,12 @@ public class AppData implements DataComponent {
     }
 
     public void loadData(String dataString) {
-        // TODO for homework 1
+        try {
+            // TODO for homework 1
+            processor.processString(dataString);
+        } catch (Exception ex) {
+            Logger.getLogger(AppData.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
