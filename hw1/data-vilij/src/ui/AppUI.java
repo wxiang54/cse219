@@ -92,6 +92,10 @@ public final class AppUI extends UITemplate {
         textArea = new TextArea();
         
         displayButton = new Button("Display");
+        displayButton.setOnAction(e -> {
+            applicationTemplate.getDataComponent().clear();
+            ((AppData) applicationTemplate.getDataComponent()).loadData(textArea.getText());
+        });
         String cssLayout = "-fx-border-color: red;\n" +
                    "-fx-border-width: 3;\n" +
                    "-fx-border-style: dashed;\n";
@@ -112,7 +116,6 @@ public final class AppUI extends UITemplate {
         right.getChildren().add(chart);
                 
         HBox content = new HBox();
-        // add graph later
         content.getChildren().addAll(left, right);
         
         appPane.getChildren().add(content);
