@@ -9,14 +9,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This is the concrete application-specific implementation of the data component defined by the Vilij framework.
+ * This is the concrete application-specific implementation of the data
+ * component defined by the Vilij framework.
  *
  * @author Ritwik Banerjee
  * @see DataComponent
  */
 public class AppData implements DataComponent {
 
-    private TSDProcessor        processor;
+    private TSDProcessor processor;
     private ApplicationTemplate applicationTemplate;
 
     public AppData(ApplicationTemplate applicationTemplate) {
@@ -32,8 +33,6 @@ public class AppData implements DataComponent {
     public void loadData(String dataString) throws Exception {
         // TODO for homework 1
         processor.processString(dataString);
-        System.out.println("data loaded!");
-        
     }
 
     @Override
