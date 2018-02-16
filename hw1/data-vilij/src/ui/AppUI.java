@@ -3,13 +3,9 @@ package ui;
 import actions.AppActions;
 import dataprocessors.AppData;
 import static java.io.File.separator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.geometry.Insets;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -23,6 +19,8 @@ import javafx.scene.layout.HBox;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
 import static settings.AppPropertyTypes.*;
+import vilij.components.Dialog;
+import vilij.components.ErrorDialog;
 import vilij.propertymanager.PropertyManager;
 
 /**
@@ -42,11 +40,16 @@ public final class AppUI extends UITemplate {
     private String scrnshoticonPath; // path to the 'screenshot' icon
     private ScatterChart<Number, Number> chart;            // the chart where data will be displayed
     private Button displayButton;    // workspace button to display data on the chart
-    private TextArea textArea;         // text area for new data input
-    private boolean hasNewText;       // whether or not the text area has any new data since last display
+    private TextArea textArea;       // text area for new data input
+    private boolean hasNewText;      // whether or not the text area has any new data since last display
 
     public ScatterChart<Number, Number> getChart() {
         return chart;
+    }
+    
+    // I added this method to help facilitate saving in AppActions#promptToSave
+    public TextArea getTextArea() {
+        return textArea;
     }
 
     public AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
@@ -93,7 +96,9 @@ public final class AppUI extends UITemplate {
     @Override
     public void clear() {
         // TODO for homework 1
-
+        applicationTemplate.getDataComponent().clear();
+        chart.getData().clear();
+        textArea.clear();
     }
 
     private void layout() {
@@ -122,6 +127,8 @@ public final class AppUI extends UITemplate {
 
     private void setWorkspaceActions() {
         // TODO for homework 1
+        PropertyManager manager = applicationTemplate.manager;
+        
         textArea.textProperty().addListener(e -> {
             if (textArea.getText().equals("")) {
                 newButton.setDisable(true); //disable 'new' button
@@ -129,9 +136,9 @@ public final class AppUI extends UITemplate {
             }
             else {
                 if (newButton.isDisabled()) //assuming this is less costly operation
-                    newButton.setDisable(false); //enable 'new button'
+                    newButton.setDisable(false); //enable 'new' button
                 if (saveButton.isDisabled())
-                    saveButton.setDisable(false);
+                    saveButton.setDisable(false); //enable 'save' button
             }
         });
         
@@ -142,9 +149,10 @@ public final class AppUI extends UITemplate {
                 chart.getData().clear();
                 ((AppData) applicationTemplate.getDataComponent()).displayData();
             } catch (Exception ex) {
-                Alert alert = new Alert(AlertType.ERROR, "Invalid data. Make sure your data is in valid TSD format.");
-                alert.showAndWait();
-                //Logger.getLogger(AppUI.class.getName()).log(Level.SEVERE, null, ex);
+                Dialog error = ErrorDialog.getDialog();
+                error.show(
+                        manager.getPropertyValue(DISPLAY_INVALID_DATA_TITLE.name()), 
+                        manager.getPropertyValue(DISPLAY_INVALID_DATA.name()));
             }
         });
         

@@ -20,7 +20,11 @@ public enum AppPropertyTypes {
 
     /* error messages */
     RESOURCE_SUBDIR_NOT_FOUND,
+    DISPLAY_INVALID_DATA,
 
+    /* error message titles */
+    DISPLAY_INVALID_DATA_TITLE,
+    
     /* application-specific message titles */
     SAVE_UNSAVED_WORK_TITLE,
 
@@ -28,6 +32,7 @@ public enum AppPropertyTypes {
     SAVE_UNSAVED_WORK,
 
     /* application-specific parameters */
+    DEFAULT_FILE_NAME,
     DATA_FILE_EXT,
     DATA_FILE_EXT_DESC,
     TEXT_AREA,

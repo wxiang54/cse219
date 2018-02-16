@@ -19,7 +19,11 @@ functionality within the main workspace. -->
 
         <!-- ERROR MESSAGES -->
         <property name="RESOURCE_SUBDIR_NOT_FOUND" value="Directory not found under resources."/>
-
+        <property name="DISPLAY_INVALID_DATA" value="You have entered invalid data. Make sure it is in valid TSD format."/>
+        
+        <!-- ERROR MESSAGE TITLES -->
+        <property name="DISPLAY_INVALID_DATA_TITLE" value="Error: Invalid Data"/>
+        
         <!-- APPLICATION-SPECIFIC MESSAGE TITLES -->
         <property name="SAVE_UNSAVED_WORK_TITLE" value="Save Current Work"/>
 
@@ -27,6 +31,7 @@ functionality within the main workspace. -->
         <property name="SAVE_UNSAVED_WORK" value="Would you like to save current work?"/>
 
         <!-- APPLICATION-SPECIFIC PARAMETERS -->
+        <property name="DEFAULT_FILE_NAME" value="Untitled.tsd"/>
         <property name="DATA_FILE_EXT" value=".tsd"/>
         <property name="DATA_FILE_EXT_DESC" value="Tab-Separated Data File"/>
         <property name="TEXT_AREA" value="text area"/>
