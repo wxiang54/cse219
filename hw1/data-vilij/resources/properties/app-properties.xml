@@ -26,7 +26,7 @@ functionality within the main workspace. -->
         
         <!-- APPLICATION-SPECIFIC MESSAGE TITLES -->
         <property name="SAVE_UNSAVED_WORK_TITLE" value="Save Current Work"/>
-
+        
         <!-- APPLICATION-SPECIFIC MESSAGES -->
         <property name="SAVE_UNSAVED_WORK" value="Would you like to save current work?"/>
 
@@ -37,7 +37,11 @@ functionality within the main workspace. -->
         <property name="DATA_FILE_EXT_DESC" value="Tab-Separated Data File"/>
         <property name="TEXT_AREA" value="text area"/>
         <property name="SPECIFIED_FILE" value=" specified file"/>
-
+        
+        <!-- WORKSPACE NAMING -->
+        <property name="TEXTAREA_TITLE" value="Data File"/>
+        <property name="GRAPH_TITLE" value="Data Visualization"/>
+        
     </property_list>
     <property_options_list/>
 </properties>

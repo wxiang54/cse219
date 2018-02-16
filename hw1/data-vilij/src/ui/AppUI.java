@@ -103,12 +103,14 @@ public final class AppUI extends UITemplate {
 
     private void layout() {
         // TODO for homework 1
+        PropertyManager manager = applicationTemplate.manager;
+        
         textArea = new TextArea();
         displayButton = new Button("Display");
         
         VBox left = new VBox();
         left.setPadding(new Insets(10));
-        left.getChildren().addAll(new Label("Data File"), textArea, displayButton);
+        left.getChildren().addAll(new Label(manager.getPropertyValue(TEXTAREA_TITLE.name())), textArea, displayButton);
 
         VBox right = new VBox();
         right.setPadding(new Insets(10));
@@ -116,13 +118,12 @@ public final class AppUI extends UITemplate {
         NumberAxis xAxis = new NumberAxis(0, 20, 2);
         NumberAxis yAxis = new NumberAxis(0, 20, 2);
         chart = new ScatterChart<Number, Number>(xAxis, yAxis);
-        chart.setTitle("Data Visualization");
+        chart.setTitle(manager.getPropertyValue(GRAPH_TITLE.name()));
         right.getChildren().add(chart);
         
-        HBox content = new HBox();
-        content.getChildren().addAll(left, right);
-        
-        appPane.getChildren().add(content);
+        workspace = new HBox();
+        workspace.getChildren().addAll(left, right);
+        appPane.getChildren().add(workspace);
     }
 
     private void setWorkspaceActions() {
