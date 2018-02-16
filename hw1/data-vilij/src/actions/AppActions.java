@@ -115,7 +115,7 @@ public final class AppActions implements ActionComponent {
                 fileChooser.getExtensionFilters().add(
                         new ExtensionFilter(
                                 manager.getPropertyValue(DATA_FILE_EXT_DESC.name()),
-                                manager.getPropertyValue(DATA_FILE_EXT.name())));
+                                '*' + manager.getPropertyValue(DATA_FILE_EXT.name())));
                 
                 File file = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
                 
