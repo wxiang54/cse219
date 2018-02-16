@@ -107,8 +107,10 @@ public final class AppActions implements ActionComponent {
             if (((ConfirmationDialog) confirmation).getSelectedOption() == ConfirmationDialog.Option.YES) {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setInitialFileName(manager.getPropertyValue(DEFAULT_FILE_NAME.name()));
-                String dataPath = "/" + String.join(separator,
-                                             manager.getPropertyValue(DATA_RESOURCE_PATH.name()));
+                String dataPath = String.join(separator,
+                        manager.getPropertyValue(DATA_RESOURCE_PREFIX.name()),
+                        manager.getPropertyValue(DATA_RESOURCE_PATH.name()));
+                //System.out.println(new File(dataPath).getAbsolutePath());
                 fileChooser.setInitialDirectory(new File(dataPath));
                 fileChooser.getExtensionFilters().add(
                         new ExtensionFilter(
