@@ -115,8 +115,8 @@ public final class AppUI extends UITemplate {
         VBox right = new VBox();
         right.setPadding(new Insets(10));
 
-        NumberAxis xAxis = new NumberAxis(0, 20, 2);
-        NumberAxis yAxis = new NumberAxis(0, 20, 2);
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis();
         chart = new ScatterChart<Number, Number>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(GRAPH_TITLE.name()));
         right.getChildren().add(chart);
