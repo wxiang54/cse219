@@ -57,9 +57,9 @@ public final class AppUI extends UITemplate {
     protected void setToolBar(ApplicationTemplate applicationTemplate) {
         super.setToolBar(applicationTemplate);
         PropertyManager manager = applicationTemplate.manager;
-        String iconsPath = separator + String.join(separator,
-                                                   manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
-                                                   manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
+        String iconsPath = "/" + String.join(separator,
+                                             manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
+                                             manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
         String scrnshoticonPath = String.join(separator,
                                               iconsPath,
                                               manager.getPropertyValue(AppPropertyTypes.SCREENSHOT_ICON.name()));
