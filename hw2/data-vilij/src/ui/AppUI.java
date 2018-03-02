@@ -42,7 +42,7 @@ public final class AppUI extends UITemplate {
     private boolean                      hasNewText;     // whether or not the text area has any new data since last display
 
     public ScatterChart<Number, Number> getChart() { return chart; }
-
+    
     public AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
         this.applicationTemplate = applicationTemplate;
@@ -92,6 +92,8 @@ public final class AppUI extends UITemplate {
     }
 
     public String getCurrentText() { return textArea.getText(); }
+    
+    public void disableSaveButton() { saveButton.setDisable(true); }
 
     private void layout() {
         PropertyManager manager = applicationTemplate.manager;
