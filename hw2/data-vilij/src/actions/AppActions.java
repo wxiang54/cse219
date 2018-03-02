@@ -3,7 +3,6 @@ package actions;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import settings.AppPropertyTypes;
 import vilij.components.ActionComponent;
 import vilij.components.ConfirmationDialog;
 import vilij.components.Dialog;
@@ -20,6 +19,7 @@ import java.nio.file.Path;
 import ui.AppUI;
 
 import static java.io.File.separator;
+import settings.AppPropertyTypes;
 import static vilij.settings.PropertyTypes.SAVE_WORK_TITLE;
 
 /**
@@ -75,14 +75,11 @@ public final class AppActions implements ActionComponent {
         PropertyManager manager = applicationTemplate.manager;
         FileChooser fileChooser = new FileChooser();
         String dataDirPath = separator + manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name());
-        URL dataDirURL = getClass().getResource(dataDirPath);
+        String dataPath = String.join(separator,
+                        manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PREFIX.name()),
+                        manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name()));
 
-        if (dataDirURL == null) {
-            System.out.println("dataDirURL is null");
-            //throw new FileNotFoundException(manager.getPropertyValue(AppPropertyTypes.RESOURCE_SUBDIR_NOT_FOUND.name()));
-        }
-
-        fileChooser.setInitialDirectory(new File(dataDirURL.getFile()));
+        fileChooser.setInitialDirectory(new File(dataPath));
         fileChooser.setTitle(manager.getPropertyValue(SAVE_WORK_TITLE.name()));
 
         String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
