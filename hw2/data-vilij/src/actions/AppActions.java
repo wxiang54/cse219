@@ -73,32 +73,32 @@ public final class AppActions implements ActionComponent {
     public void handleSaveRequest() {
         // TODO: NOT A PART OF HW 1
         PropertyManager manager = applicationTemplate.manager;
-        FileChooser fileChooser = new FileChooser();
-        String dataDirPath = separator + manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name());
-        String dataPath = String.join(separator,
-                        manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PREFIX.name()),
-                        manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name()));
 
-        fileChooser.setInitialDirectory(new File(dataPath));
-        fileChooser.setTitle(manager.getPropertyValue(SAVE_WORK_TITLE.name()));
+        if (dataFilePath == null) { //file has not been saved yet
+            String dataPath = String.join(separator,
+                    manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PREFIX.name()),
+                    manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name()));
 
-        String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
-        String extension = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
-        ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
-                String.format("*.%s", extension));
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setInitialDirectory(new File(dataPath));
+            fileChooser.setTitle(manager.getPropertyValue(SAVE_WORK_TITLE.name()));
 
-        fileChooser.getExtensionFilters().add(extFilter);
-        File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
-        if (selected != null) {
+            String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
+            String extension = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
+            ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
+                    String.format("*.%s", extension));
+            fileChooser.getExtensionFilters().add(extFilter);
+            File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
+            if (selected == null) {
+                return;
+            }
             dataFilePath = selected.toPath();
-            try {
-                System.out.println(dataFilePath);
-                save();
-                ((AppUI) applicationTemplate.getUIComponent()).disableSaveButton();
-            }
-            catch (IOException e) {
-                errorHandlingHelper();
-            }
+        }
+        try {
+            save();
+            ((AppUI) applicationTemplate.getUIComponent()).disableSaveButton();
+        } catch (IOException e) {
+            errorHandlingHelper();
         }
     }
 

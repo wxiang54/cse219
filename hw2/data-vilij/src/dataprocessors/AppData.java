@@ -39,12 +39,13 @@ public class AppData implements DataComponent {
         try {
             processor.processString(dataString);
         } catch (Exception e) {
+            System.out.println(e);
             ErrorDialog     dialog   = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
             PropertyManager manager  = applicationTemplate.manager;
             String          errTitle = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_TITLE.name());
             String          errMsg   = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_MSG.name());
             String          errInput = manager.getPropertyValue(AppPropertyTypes.TEXT_AREA.name());
-            dialog.show(errTitle, errMsg + errInput);
+            dialog.show(errTitle, errMsg + errInput + "\n" + e.getMessage());
         }
     }
 

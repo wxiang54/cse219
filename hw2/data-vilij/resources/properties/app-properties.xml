@@ -19,6 +19,7 @@ functionality within the main workspace. -->
 
         <!-- ERROR MESSAGES -->
         <property name="RESOURCE_SUBDIR_NOT_FOUND" value="Directory not found under resources."/>
+        <property name="FORMATTING_ERROR_MSG" value="Formatting error on line "/>
 
         <!-- APPLICATION-SPECIFIC MESSAGE TITLES -->
         <property name="SAVE_UNSAVED_WORK_TITLE" value="Save Current Work"/>

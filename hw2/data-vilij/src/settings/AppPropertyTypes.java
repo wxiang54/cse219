@@ -20,13 +20,14 @@ public enum AppPropertyTypes {
 
     /* error messages */
     RESOURCE_SUBDIR_NOT_FOUND,
+    FORMATTING_ERROR_MSG,
 
     /* application-specific message titles */
     SAVE_UNSAVED_WORK_TITLE,
 
     /* application-specific messages */
     SAVE_UNSAVED_WORK,
-
+    
     /* application-specific parameters */
     DATA_RESOURCE_PREFIX,
     DATA_FILE_EXT,
