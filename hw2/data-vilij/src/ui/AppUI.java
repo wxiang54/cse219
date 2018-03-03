@@ -45,7 +45,8 @@ public final class AppUI extends UITemplate {
     private TextArea textArea;                  // text area for new data input
     private CheckBox toggleReadOnly;            // read-only checkbox
     private boolean hasNewText;                 // whether text area has new data since last display
-    private String[] allData;                    // full (> 10 lines of) data
+    private String[] allData;                   // full (> 10 lines of) data
+    private String allDataStr;                  
 
     public ScatterChart<Number, Number> getChart() {
         return chart;
@@ -103,7 +104,7 @@ public final class AppUI extends UITemplate {
         return textArea.getText();
     }
 
-    public void updateTextAndGraph(String data) {
+    public void updateTextArea(String data) {
         AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
         dataComponent.clear();
         try {
@@ -111,12 +112,10 @@ public final class AppUI extends UITemplate {
         } catch (Exception e) {
             return;
         }
-        chart.getData().clear();
-        dataComponent.displayData();
         allData = data.split("\n");
         if (allData.length > 10) {
             String lastLine = allData[10];
-            textArea.textProperty().setValue(data.substring(0, data.indexOf(lastLine) - 1));
+            textArea.textProperty().setValue(data.substring(0, data.indexOf(lastLine)));
             dataComponent.showFileTooLongDialog(allData.length);
         } else {
             textArea.textProperty().setValue(data);
@@ -210,12 +209,17 @@ public final class AppUI extends UITemplate {
                 AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
                 dataComponent.clear();
                 try {
-                    dataComponent.loadData(textArea.getText());
+                    if (allData.length > 10) {
+                        dataComponent.loadData(textArea.getText());
+                    } else {
+                        dataComponent.loadData(textArea.getText());
+                    }
                 } catch (Exception e) {
                     return;
                 }
                 chart.getData().clear();
                 dataComponent.displayData();
+                scrnshotButton.setDisable(false);
             }
         });
     }
