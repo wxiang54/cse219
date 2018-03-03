@@ -1,5 +1,7 @@
 package dataprocessors;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import settings.AppPropertyTypes;
 import ui.AppUI;
 import vilij.components.DataComponent;
@@ -37,15 +39,14 @@ public class AppData implements DataComponent {
                 ((AppUI) applicationTemplate.getUIComponent()).getCurrentText());
     }
 
-    public void showLoadErrorDialog(String msg) {
+    public void showLoadErrorDialog(String msg, String src) {
         ErrorDialog dialog = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
         PropertyManager manager = applicationTemplate.manager;
         String errTitle = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_TITLE.name());
         String errMsg = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_MSG.name());
-        String errInput = manager.getPropertyValue(AppPropertyTypes.TEXT_AREA.name());
-        dialog.show(errTitle, errMsg + errInput + "\n" + msg);
+        dialog.show(errTitle, errMsg + src + "\n" + msg);
     }
-    
+
     public void showSaveErrorDialog(String msg) {
         ErrorDialog dialog = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
         PropertyManager manager = applicationTemplate.manager;
@@ -58,14 +59,36 @@ public class AppData implements DataComponent {
     @Override
     public void loadData(Path dataFilePath) {
         // TODO: NOT A PART OF HW 1
+        PropertyManager manager = applicationTemplate.manager;
+        try {
+            FileReader fr = new FileReader(dataFilePath.toFile());
+            BufferedReader br = new BufferedReader(fr);
+            String curLine = br.readLine();
+            String dataString = "";
+            while (curLine != null) {
+                dataString += curLine + "\n";
+                curLine = br.readLine();
+            }
+            clear();
+            processor.processString(dataString); //stops here if invalid data
+            
+            
+        } catch (Exception e) {
+            System.out.println(e);
+            showLoadErrorDialog(e.getMessage(),
+                    manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name()));
+        }
     }
 
-    public void loadData(String dataString) {
+    public void loadData(String dataString) throws Exception {
+        PropertyManager manager = applicationTemplate.manager;
         try {
             processor.processString(dataString);
         } catch (Exception e) {
             System.out.println(e);
-            showLoadErrorDialog(e.getMessage());
+            showLoadErrorDialog(e.getMessage(),
+                    manager.getPropertyValue(AppPropertyTypes.TEXT_AREA.name()));
+            throw e;
         }
     }
 

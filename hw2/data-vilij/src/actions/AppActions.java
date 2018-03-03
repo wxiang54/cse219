@@ -101,7 +101,6 @@ public final class AppActions implements ActionComponent {
         }
         try {
             save();
-            ((AppUI) applicationTemplate.getUIComponent()).disableSaveButton();
         } catch (IOException e) {
             errorHandlingHelper();
         }
@@ -111,26 +110,24 @@ public final class AppActions implements ActionComponent {
     public void handleLoadRequest() {
         // TODO: NOT A PART OF HW 1
         PropertyManager manager = applicationTemplate.manager;
+        String dataPath = String.join(separator, //always defaults to '/data' for now
+                manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PREFIX.name()),
+                manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name()));
+
         FileChooser fileChooser = new FileChooser();
-        String dataDirPath = separator + manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name());
-        URL dataDirURL = getClass().getResource(dataDirPath);
-
-        if (dataDirURL == null) {
-            //throw new FileNotFoundException(manager.getPropertyValue(AppPropertyTypes.RESOURCE_SUBDIR_NOT_FOUND.name()));
-        }
-
-        fileChooser.setInitialDirectory(new File(dataDirURL.getFile()));
+        fileChooser.setInitialDirectory(new File(dataPath));
         fileChooser.setTitle(manager.getPropertyValue(AppPropertyTypes.LOAD_WORK_TITLE.name()));
-
         String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
         String extension = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
         ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
                 String.format("*.%s", extension));
-
         fileChooser.getExtensionFilters().add(extFilter);
-        File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
+        File selected = fileChooser.showOpenDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
+
         if (selected != null) {
             dataFilePath = selected.toPath();
+            ((AppData) applicationTemplate.getDataComponent()).loadData(dataFilePath);
+            ((AppUI) applicationTemplate.getUIComponent()).disableSaveButton();
         } else {
             //return false; // if user presses escape after initially selecting 'yes'
         }
@@ -183,33 +180,11 @@ public final class AppActions implements ActionComponent {
             return false; // if user closes dialog using the window's close button
         }
         if (dialog.getSelectedOption().equals(ConfirmationDialog.Option.YES)) {
-            if (dataFilePath == null) {
-                FileChooser fileChooser = new FileChooser();
-                String dataDirPath = separator + manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name());
-                URL dataDirURL = getClass().getResource(dataDirPath);
-
-                if (dataDirURL == null) {
-                    throw new FileNotFoundException(manager.getPropertyValue(AppPropertyTypes.RESOURCE_SUBDIR_NOT_FOUND.name()));
-                }
-
-                fileChooser.setInitialDirectory(new File(dataDirURL.getFile()));
-                fileChooser.setTitle(manager.getPropertyValue(SAVE_WORK_TITLE.name()));
-
-                String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
-                String extension = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
-                ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
-                        String.format("*.%s", extension));
-
-                fileChooser.getExtensionFilters().add(extFilter);
-                File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
-                if (selected != null) {
-                    dataFilePath = selected.toPath();
-                    save();
-                } else {
-                    return false; // if user presses escape after initially selecting 'yes'
-                }
-            } else {
+            handleSaveRequest();
+            try {
                 save();
+            } catch (Exception e) {
+                return false;
             }
         }
 
@@ -219,6 +194,7 @@ public final class AppActions implements ActionComponent {
     private void save() throws IOException {
         applicationTemplate.getDataComponent().saveData(dataFilePath);
         isUnsaved.set(false);
+        ((AppUI) applicationTemplate.getUIComponent()).disableSaveButton();
     }
 
     private void errorHandlingHelper() {

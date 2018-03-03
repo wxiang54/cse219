@@ -187,14 +187,12 @@ public final class AppUI extends UITemplate {
         displayButton.setOnAction(event -> {
             if (hasNewText) {
                 AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
+                dataComponent.clear();
                 try {
-                    dataComponent.processTextArea();
+                    dataComponent.loadData(textArea.getText());
                 } catch (Exception e) {
-                    dataComponent.showLoadErrorDialog(e.getMessage());
                     return;
                 }
-                dataComponent.clear();
-                dataComponent.loadData(textArea.getText());
                 chart.getData().clear();
                 dataComponent.displayData();
             }
