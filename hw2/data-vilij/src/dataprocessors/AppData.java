@@ -15,19 +15,44 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * This is the concrete application-specific implementation of the data component defined by the Vilij framework.
+ * This is the concrete application-specific implementation of the data
+ * component defined by the Vilij framework.
  *
  * @author Ritwik Banerjee
  * @see DataComponent
  */
 public class AppData implements DataComponent {
 
-    private TSDProcessor        processor;
+    private TSDProcessor processor;
     private ApplicationTemplate applicationTemplate;
 
     public AppData(ApplicationTemplate applicationTemplate) {
         this.processor = new TSDProcessor();
         this.applicationTemplate = applicationTemplate;
+    }
+
+    public void processTextArea() throws Exception {
+        clear();
+        processor.processString(
+                ((AppUI) applicationTemplate.getUIComponent()).getCurrentText());
+    }
+
+    public void showLoadErrorDialog(String msg) {
+        ErrorDialog dialog = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
+        PropertyManager manager = applicationTemplate.manager;
+        String errTitle = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_TITLE.name());
+        String errMsg = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_MSG.name());
+        String errInput = manager.getPropertyValue(AppPropertyTypes.TEXT_AREA.name());
+        dialog.show(errTitle, errMsg + errInput + "\n" + msg);
+    }
+    
+    public void showSaveErrorDialog(String msg) {
+        ErrorDialog dialog = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
+        PropertyManager manager = applicationTemplate.manager;
+        String errTitle = manager.getPropertyValue(PropertyTypes.SAVE_ERROR_TITLE.name());
+        String errMsg = manager.getPropertyValue(PropertyTypes.SAVE_ERROR_MSG.name());
+        String errInput = manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name());
+        dialog.show(errTitle, errMsg + errInput + "\n" + msg);
     }
 
     @Override
@@ -40,12 +65,7 @@ public class AppData implements DataComponent {
             processor.processString(dataString);
         } catch (Exception e) {
             System.out.println(e);
-            ErrorDialog     dialog   = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
-            PropertyManager manager  = applicationTemplate.manager;
-            String          errTitle = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_TITLE.name());
-            String          errMsg   = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_MSG.name());
-            String          errInput = manager.getPropertyValue(AppPropertyTypes.TEXT_AREA.name());
-            dialog.show(errTitle, errMsg + errInput + "\n" + e.getMessage());
+            showLoadErrorDialog(e.getMessage());
         }
     }
 

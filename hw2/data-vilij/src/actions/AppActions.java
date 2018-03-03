@@ -1,5 +1,6 @@
 package actions;
 
+import dataprocessors.AppData;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -71,9 +72,14 @@ public final class AppActions implements ActionComponent {
 
     @Override
     public void handleSaveRequest() {
-        // TODO: NOT A PART OF HW 1
+        try {
+            ((AppData)applicationTemplate.getDataComponent()).processTextArea();
+        }
+        catch (Exception e) {
+            ((AppData)applicationTemplate.getDataComponent()).showSaveErrorDialog(e.getMessage());
+            return;
+        }
         PropertyManager manager = applicationTemplate.manager;
-
         if (dataFilePath == null) { //file has not been saved yet
             String dataPath = String.join(separator,
                     manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PREFIX.name()),
