@@ -110,6 +110,17 @@ public final class AppActions implements ActionComponent {
     public void handleLoadRequest() {
         // TODO: NOT A PART OF HW 1
         PropertyManager manager = applicationTemplate.manager;
+        try {
+            if (isUnsaved.get()) {
+                if (!promptToSave()) {
+                    return;
+                }
+            }
+        } catch (IOException e) {
+            errorHandlingHelper();
+            return;
+        }
+        
         String dataPath = String.join(separator, //always defaults to '/data' for now
                 manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PREFIX.name()),
                 manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name()));
