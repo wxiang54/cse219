@@ -102,6 +102,19 @@ public final class AppUI extends UITemplate {
         return textArea.getText();
     }
 
+    public void updateTextAndGraph(String data) {
+        textArea.textProperty().setValue(data);
+        AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
+        dataComponent.clear();
+        try {
+            dataComponent.loadData(data);
+        } catch (Exception e) {
+            return;
+        }
+        chart.getData().clear();
+        dataComponent.displayData();
+    }
+
     public void disableSaveButton() {
         saveButton.setDisable(true);
     }
@@ -178,7 +191,7 @@ public final class AppUI extends UITemplate {
     }
 
     private void setCheckBoxActions() {
-        toggleReadOnly.selectedProperty().addListener((observabke, oldValue, newValue) -> {
+        toggleReadOnly.selectedProperty().addListener((observable, oldValue, newValue) -> {
             textArea.setDisable(newValue);
         });
     }

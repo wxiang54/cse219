@@ -71,7 +71,7 @@ public class AppData implements DataComponent {
             }
             clear();
             processor.processString(dataString); //stops here if invalid data
-            
+            ((AppUI) applicationTemplate.getUIComponent()).updateTextAndGraph(dataString);
             
         } catch (Exception e) {
             System.out.println(e);

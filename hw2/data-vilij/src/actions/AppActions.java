@@ -138,7 +138,9 @@ public final class AppActions implements ActionComponent {
         if (selected != null) {
             dataFilePath = selected.toPath();
             ((AppData) applicationTemplate.getDataComponent()).loadData(dataFilePath);
-            ((AppUI) applicationTemplate.getUIComponent()).disableSaveButton();
+            AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+            ui.disableSaveButton();
+            isUnsaved.set(false);
         } else {
             //return false; // if user presses escape after initially selecting 'yes'
         }
