@@ -26,6 +26,7 @@ functionality within the main workspace. -->
 
         <!-- APPLICATION-SPECIFIC MESSAGES -->
         <property name="SAVE_UNSAVED_WORK" value="Would you like to save current work?"/>
+        <property name="LOAD_WORK_TITLE" value="Load"/>
 
         <!-- APPLICATION-SPECIFIC PARAMETERS -->
         <property name="DATA_RESOURCE_PREFIX" value="data-vilij/resources"/>
@@ -38,6 +39,7 @@ functionality within the main workspace. -->
         <property name="LEFT_PANE_TITLESIZE" value="18"/>
         <property name="CHART_TITLE" value="Data Visualization"/>
         <property name="DISPLAY_BUTTON_TEXT" value="Display Data"/>
+        <property name="TOGGLE_READONLY_TEXT" value="Read Only"/>
 
     </property_list>
     <property_options_list/>

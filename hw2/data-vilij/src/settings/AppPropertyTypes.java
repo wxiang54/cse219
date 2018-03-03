@@ -24,7 +24,8 @@ public enum AppPropertyTypes {
 
     /* application-specific message titles */
     SAVE_UNSAVED_WORK_TITLE,
-
+    LOAD_WORK_TITLE,
+    
     /* application-specific messages */
     SAVE_UNSAVED_WORK,
     
@@ -38,5 +39,6 @@ public enum AppPropertyTypes {
     LEFT_PANE_TITLEFONT,
     LEFT_PANE_TITLESIZE,
     CHART_TITLE,
-    DISPLAY_BUTTON_TEXT
+    DISPLAY_BUTTON_TEXT,
+    TOGGLE_READONLY_TEXT
 }

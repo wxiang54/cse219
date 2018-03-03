@@ -73,10 +73,9 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleSaveRequest() {
         try {
-            ((AppData)applicationTemplate.getDataComponent()).processTextArea();
-        }
-        catch (Exception e) {
-            ((AppData)applicationTemplate.getDataComponent()).showSaveErrorDialog(e.getMessage());
+            ((AppData) applicationTemplate.getDataComponent()).processTextArea();
+        } catch (Exception e) {
+            ((AppData) applicationTemplate.getDataComponent()).showSaveErrorDialog(e.getMessage());
             return;
         }
         PropertyManager manager = applicationTemplate.manager;
@@ -111,6 +110,30 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleLoadRequest() {
         // TODO: NOT A PART OF HW 1
+        PropertyManager manager = applicationTemplate.manager;
+        FileChooser fileChooser = new FileChooser();
+        String dataDirPath = separator + manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name());
+        URL dataDirURL = getClass().getResource(dataDirPath);
+
+        if (dataDirURL == null) {
+            //throw new FileNotFoundException(manager.getPropertyValue(AppPropertyTypes.RESOURCE_SUBDIR_NOT_FOUND.name()));
+        }
+
+        fileChooser.setInitialDirectory(new File(dataDirURL.getFile()));
+        fileChooser.setTitle(manager.getPropertyValue(AppPropertyTypes.LOAD_WORK_TITLE.name()));
+
+        String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
+        String extension = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
+        ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
+                String.format("*.%s", extension));
+
+        fileChooser.getExtensionFilters().add(extFilter);
+        File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
+        if (selected != null) {
+            dataFilePath = selected.toPath();
+        } else {
+            //return false; // if user presses escape after initially selecting 'yes'
+        }
     }
 
     @Override
