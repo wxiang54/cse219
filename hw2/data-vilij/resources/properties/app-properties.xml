@@ -23,10 +23,12 @@ functionality within the main workspace. -->
 
         <!-- APPLICATION-SPECIFIC MESSAGE TITLES -->
         <property name="SAVE_UNSAVED_WORK_TITLE" value="Save Current Work"/>
+        <property name="LOAD_WORK_TITLE" value="Load"/>
+        <property name="FILE_TOO_LONG_TITLE" value="File Too Long"/>
+        <property name="FILE_TOO_LONG_MSG" value="Loaded data consists of %d lines. Showing only the first 10 in the text area."/>
 
         <!-- APPLICATION-SPECIFIC MESSAGES -->
         <property name="SAVE_UNSAVED_WORK" value="Would you like to save current work?"/>
-        <property name="LOAD_WORK_TITLE" value="Load"/>
 
         <!-- APPLICATION-SPECIFIC PARAMETERS -->
         <property name="DATA_RESOURCE_PREFIX" value="data-vilij/resources"/>

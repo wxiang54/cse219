@@ -25,6 +25,8 @@ public enum AppPropertyTypes {
     /* application-specific message titles */
     SAVE_UNSAVED_WORK_TITLE,
     LOAD_WORK_TITLE,
+    FILE_TOO_LONG_TITLE,
+    FILE_TOO_LONG_MSG,
     
     /* application-specific messages */
     SAVE_UNSAVED_WORK,

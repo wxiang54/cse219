@@ -200,7 +200,6 @@ public final class AppActions implements ActionComponent {
                 return false;
             }
         }
-
         return !dialog.getSelectedOption().equals(ConfirmationDialog.Option.CANCEL);
     }
 

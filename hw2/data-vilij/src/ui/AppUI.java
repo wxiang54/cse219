@@ -39,12 +39,13 @@ public final class AppUI extends UITemplate {
     ApplicationTemplate applicationTemplate;
 
     @SuppressWarnings("FieldCanBeLocal")
-    private Button scrnshotButton; // toolbar button to take a screenshot of the data
-    private ScatterChart<Number, Number> chart;          // the chart where data will be displayed
-    private Button displayButton;  // workspace button to display data on the chart
-    private TextArea textArea;       // text area for new data input
-    private CheckBox toggleReadOnly;
-    private boolean hasNewText;     // whether or not the text area has any new data since last display
+    private Button scrnshotButton;              // toolbar button to take a screenshot of the data
+    private ScatterChart<Number, Number> chart; // the chart where data will be displayed
+    private Button displayButton;               // workspace button to display data on the chart
+    private TextArea textArea;                  // text area for new data input
+    private CheckBox toggleReadOnly;            // read-only checkbox
+    private boolean hasNewText;                 // whether text area has new data since last display
+    private String[] allData;                    // full (> 10 lines of) data
 
     public ScatterChart<Number, Number> getChart() {
         return chart;
@@ -103,7 +104,6 @@ public final class AppUI extends UITemplate {
     }
 
     public void updateTextAndGraph(String data) {
-        textArea.textProperty().setValue(data);
         AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
         dataComponent.clear();
         try {
@@ -113,6 +113,14 @@ public final class AppUI extends UITemplate {
         }
         chart.getData().clear();
         dataComponent.displayData();
+        allData = data.split("\n");
+        if (allData.length > 10) {
+            String lastLine = allData[10];
+            textArea.textProperty().setValue(data.substring(0, data.indexOf(lastLine) - 1));
+            dataComponent.showFileTooLongDialog(allData.length);
+        } else {
+            textArea.textProperty().setValue(data);
+        }
     }
 
     public void disableSaveButton() {
@@ -131,8 +139,8 @@ public final class AppUI extends UITemplate {
         leftPanel.setPadding(new Insets(10));
 
         VBox.setVgrow(leftPanel, Priority.ALWAYS);
-        leftPanel.setMaxSize(windowWidth * 0.29, windowHeight * 0.3);
-        leftPanel.setMinSize(windowWidth * 0.29, windowHeight * 0.3);
+        leftPanel.setMaxSize(windowWidth * 0.29, windowHeight * 0.5);
+        leftPanel.setMinSize(windowWidth * 0.29, windowHeight * 0.5);
 
         Text leftPanelTitle = new Text(manager.getPropertyValue(AppPropertyTypes.LEFT_PANE_TITLE.name()));
         String fontname = manager.getPropertyValue(AppPropertyTypes.LEFT_PANE_TITLEFONT.name());

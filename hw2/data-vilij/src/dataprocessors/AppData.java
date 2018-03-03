@@ -55,6 +55,14 @@ public class AppData implements DataComponent {
         String errInput = manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name());
         dialog.show(errTitle, errMsg + errInput + "\n" + msg);
     }
+    
+    public void showFileTooLongDialog(int numLines) {
+        ErrorDialog dialog = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
+        PropertyManager manager = applicationTemplate.manager;
+        String errTitle = manager.getPropertyValue(AppPropertyTypes.FILE_TOO_LONG_TITLE.name());
+        String errMsg = String.format(manager.getPropertyValue(AppPropertyTypes.FILE_TOO_LONG_MSG.name()), numLines);
+        dialog.show(errTitle, errMsg);
+    }
 
     @Override
     public void loadData(Path dataFilePath) {
