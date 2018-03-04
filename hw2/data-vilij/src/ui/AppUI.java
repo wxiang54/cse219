@@ -25,7 +25,12 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.control.CheckBox;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.Pane;
+import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
+import static vilij.settings.PropertyTypes.CSS_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
 
@@ -50,6 +55,7 @@ public final class AppUI extends UITemplate {
     private boolean hasNewText;                 // whether text area has new data since last display
     private String[] allData;                   // full (> 10 lines of) data
     private String allDataStr;
+    private String appCSSPath;                  // path to data-vilij css file
 
     public ScatterChart<Number, Number> getChart() {
         return chart;
@@ -58,11 +64,17 @@ public final class AppUI extends UITemplate {
     public AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
         this.applicationTemplate = applicationTemplate;
+        primaryScene.getStylesheets().add(appCSSPath);
     }
 
     @Override
     protected void setResourcePaths(ApplicationTemplate applicationTemplate) {
         super.setResourcePaths(applicationTemplate);
+        PropertyManager manager = applicationTemplate.manager;
+        appCSSPath = "/" + String.join(separator,
+                                    manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
+                                    manager.getPropertyValue(CSS_RESOURCE_PATH.name()),
+                                    manager.getPropertyValue(APP_CSS_RESOURCE_FILENAME.name()));
     }
 
     @Override
@@ -142,7 +154,12 @@ public final class AppUI extends UITemplate {
         NumberAxis yAxis = new NumberAxis();
         chart = new ScatterChart<>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(AppPropertyTypes.CHART_TITLE.name()));
-
+        //remove grid lines
+        chart.setHorizontalGridLinesVisible(false);
+        chart.setHorizontalZeroLineVisible(false);
+        chart.setVerticalGridLinesVisible(false);
+        chart.setVerticalZeroLineVisible(false);
+        
         VBox leftPanel = new VBox(8);
         leftPanel.setAlignment(Pos.TOP_CENTER);
         leftPanel.setPadding(new Insets(10));

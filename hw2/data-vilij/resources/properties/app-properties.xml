@@ -6,6 +6,7 @@ functionality within the main workspace. -->
     <property_list>
         <!-- RESOURCE FILES AND FOLDERS -->
         <property name="DATA_RESOURCE_PATH" value="data"/>
+        <property name="APP_CSS_RESOURCE_FILENAME" value="data-vilij.css"/>
         
         <!-- USER INTERFACE ICON FILES -->
         <property name="SCREENSHOT_ICON" value="screenshot.png"/>
