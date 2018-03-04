@@ -21,6 +21,9 @@ import vilij.templates.UITemplate;
 
 import static java.io.File.separator;
 import java.io.IOException;
+import javafx.event.EventType;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.CheckBox;
 import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
@@ -66,9 +69,9 @@ public final class AppUI extends UITemplate {
         super.setResourcePaths(applicationTemplate);
         PropertyManager manager = applicationTemplate.manager;
         appCSSPath = "/" + String.join(separator,
-                                    manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
-                                    manager.getPropertyValue(CSS_RESOURCE_PATH.name()),
-                                    manager.getPropertyValue(APP_CSS_RESOURCE_FILENAME.name()));
+                manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
+                manager.getPropertyValue(CSS_RESOURCE_PATH.name()),
+                manager.getPropertyValue(APP_CSS_RESOURCE_FILENAME.name()));
     }
 
     @Override
@@ -153,7 +156,7 @@ public final class AppUI extends UITemplate {
         chart.setHorizontalZeroLineVisible(false);
         chart.setVerticalGridLinesVisible(false);
         chart.setVerticalZeroLineVisible(false);
-        
+
         VBox leftPanel = new VBox(8);
         leftPanel.setAlignment(Pos.TOP_CENTER);
         leftPanel.setPadding(new Insets(10));
@@ -241,8 +244,24 @@ public final class AppUI extends UITemplate {
                 }
                 chart.getData().clear();
                 dataComponent.displayData();
+                setDataPointListeners();
                 scrnshotButton.setDisable(false);
             }
         });
+    }
+
+    private void setDataPointListeners() {
+        for (int i = 0; i < 7; i++) {
+            if (chart.lookup(".default-color" + i + ".chart-line-symbol") != null) {
+                for (Node point : chart.lookupAll(".default-color" + i + ".chart-line-symbol")) {
+                    point.setOnMouseEntered(event -> {
+                        primaryScene.setCursor(Cursor.CROSSHAIR);
+                    });
+                    point.setOnMouseExited(event -> {
+                        primaryScene.setCursor(Cursor.DEFAULT);
+                    });
+                }
+            }
+        }
     }
 }
