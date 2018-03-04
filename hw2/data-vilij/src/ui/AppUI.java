@@ -5,7 +5,6 @@ import dataprocessors.AppData;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
@@ -22,13 +21,8 @@ import vilij.templates.UITemplate;
 
 import static java.io.File.separator;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.CheckBox;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.Pane;
 import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
 import static vilij.settings.PropertyTypes.CSS_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
@@ -48,7 +42,7 @@ public final class AppUI extends UITemplate {
 
     @SuppressWarnings("FieldCanBeLocal")
     private Button scrnshotButton;              // toolbar button to take a screenshot of the data
-    private ScatterChart<Number, Number> chart; // the chart where data will be displayed
+    private LineChart<Number, Number> chart; // the chart where data will be displayed
     private Button displayButton;               // workspace button to display data on the chart
     private TextArea textArea;                  // text area for new data input
     private CheckBox toggleReadOnly;            // read-only checkbox
@@ -57,7 +51,7 @@ public final class AppUI extends UITemplate {
     private String allDataStr;
     private String appCSSPath;                  // path to data-vilij css file
 
-    public ScatterChart<Number, Number> getChart() {
+    public LineChart<Number, Number> getChart() {
         return chart;
     }
 
@@ -152,7 +146,7 @@ public final class AppUI extends UITemplate {
         PropertyManager manager = applicationTemplate.manager;
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
-        chart = new ScatterChart<>(xAxis, yAxis);
+        chart = new LineChart<>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(AppPropertyTypes.CHART_TITLE.name()));
         //remove grid lines
         chart.setHorizontalGridLinesVisible(false);
@@ -236,12 +230,13 @@ public final class AppUI extends UITemplate {
                 AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
                 dataComponent.clear();
                 try {
-                    if (allData.length > 10) {
+                    if (allData != null && allData.length > 10) {
                         dataComponent.loadData(textArea.getText());
                     } else {
                         dataComponent.loadData(textArea.getText());
                     }
                 } catch (Exception e) {
+                    System.out.println(e);
                     return;
                 }
                 chart.getData().clear();

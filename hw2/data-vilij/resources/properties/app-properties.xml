@@ -45,6 +45,8 @@ functionality within the main workspace. -->
         <property name="CHART_TITLE" value="Data Visualization"/>
         <property name="DISPLAY_BUTTON_TEXT" value="Display Data"/>
         <property name="TOGGLE_READONLY_TEXT" value="Read Only"/>
+        <property name="AVG_LINE_NAME" value="Average Line"/>
+        <property name="AVG_LINE_ID" value="avg-line"/>
 
     </property_list>
     <property_options_list/>

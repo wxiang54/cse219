@@ -7,6 +7,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import settings.AppPropertyTypes;
+import vilij.propertymanager.PropertyManager;
 
 /**
  * The data files used by this data visualization applications follow a
@@ -112,6 +114,31 @@ public final class TSDProcessor {
             });
             chart.getData().add(series);
         }
+
+        //draw the average y value line
+        double y_sum = 0.0;
+        double x_min = dataPoints.values().iterator().next().getX(); //random x
+        double x_max = dataPoints.values().iterator().next().getX(); //another random x
+        for (Point2D point : dataPoints.values()) {
+            if (point.getX() < x_min) {
+                x_min = point.getX();
+            }
+            if (point.getX() > x_max) {
+                x_max = point.getX();
+            }
+            y_sum += point.getY();
+        }
+
+        PropertyManager manager = PropertyManager.getManager();
+
+        double y_avg = y_sum / dataPoints.size();
+        XYChart.Series<Number, Number> line_avg = new XYChart.Series<>();
+        line_avg.getData().addAll(new XYChart.Data<>(x_min, y_avg), new XYChart.Data<>(x_max, y_avg));
+        line_avg.setName(manager.getPropertyValue(AppPropertyTypes.AVG_LINE_NAME.name()));
+        chart.getData().add(line_avg);
+        line_avg.getNode().setId(manager.getPropertyValue(AppPropertyTypes.AVG_LINE_ID.name()));
+        line_avg.getData().get(0).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
+        line_avg.getData().get(1).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
     }
 
     void clear() {

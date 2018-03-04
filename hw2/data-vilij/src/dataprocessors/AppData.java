@@ -90,6 +90,7 @@ public class AppData implements DataComponent {
 
     public void loadData(String dataString) throws Exception {
         PropertyManager manager = applicationTemplate.manager;
+        //System.out.println("got here");
         try {
             processor.processString(dataString);
         } catch (Exception e) {
