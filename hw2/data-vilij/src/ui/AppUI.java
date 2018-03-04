@@ -21,6 +21,9 @@ import vilij.templates.ApplicationTemplate;
 import vilij.templates.UITemplate;
 
 import static java.io.File.separator;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.Pane;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
@@ -46,7 +49,7 @@ public final class AppUI extends UITemplate {
     private CheckBox toggleReadOnly;            // read-only checkbox
     private boolean hasNewText;                 // whether text area has new data since last display
     private String[] allData;                   // full (> 10 lines of) data
-    private String allDataStr;                  
+    private String allDataStr;
 
     public ScatterChart<Number, Number> getChart() {
         return chart;
@@ -86,6 +89,13 @@ public final class AppUI extends UITemplate {
         loadButton.setOnAction(e -> applicationTemplate.getActionComponent().handleLoadRequest());
         exitButton.setOnAction(e -> applicationTemplate.getActionComponent().handleExitRequest());
         printButton.setOnAction(e -> applicationTemplate.getActionComponent().handlePrintRequest());
+        scrnshotButton.setOnAction(e -> {
+            try {
+                ((AppActions) applicationTemplate.getActionComponent()).handleScreenshotRequest();
+            } catch (IOException ex) {
+                //do nothing
+            }
+        });
     }
 
     @Override

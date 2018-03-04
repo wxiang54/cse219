@@ -35,6 +35,8 @@ public enum AppPropertyTypes {
     DATA_RESOURCE_PREFIX,
     DATA_FILE_EXT,
     DATA_FILE_EXT_DESC,
+    IMG_FILE_EXT,
+    IMG_FILE_EXT_DESC,
     TEXT_AREA,
     SPECIFIED_FILE,
     LEFT_PANE_TITLE,

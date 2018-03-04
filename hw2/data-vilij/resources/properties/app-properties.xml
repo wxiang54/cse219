@@ -34,6 +34,8 @@ functionality within the main workspace. -->
         <property name="DATA_RESOURCE_PREFIX" value="data-vilij/resources"/>
         <property name="DATA_FILE_EXT" value=".tsd"/>
         <property name="DATA_FILE_EXT_DESC" value="Tab-Separated Data File"/>
+        <property name="IMG_FILE_EXT" value=".png"/>
+        <property name="IMG_FILE_EXT_DESC" value="Portable Network Graphics"/>
         <property name="TEXT_AREA" value="text area"/>
         <property name="SPECIFIED_FILE" value=" specified file"/>
         <property name="LEFT_PANE_TITLE" value="Data File"/>

@@ -20,6 +20,10 @@ import java.nio.file.Path;
 import ui.AppUI;
 
 import static java.io.File.separator;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.WritableImage;
+import javax.imageio.ImageIO;
 import settings.AppPropertyTypes;
 import static vilij.settings.PropertyTypes.SAVE_WORK_TITLE;
 
@@ -120,7 +124,7 @@ public final class AppActions implements ActionComponent {
             errorHandlingHelper();
             return;
         }
-        
+
         String dataPath = String.join(separator, //always defaults to '/data' for now
                 manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PREFIX.name()),
                 manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name()));
@@ -164,6 +168,35 @@ public final class AppActions implements ActionComponent {
 
     public void handleScreenshotRequest() throws IOException {
         // TODO: NOT A PART OF HW 1
+        PropertyManager manager = applicationTemplate.manager;
+
+        String dataPath = String.join(separator, //always defaults to '/data' for now
+                manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PREFIX.name()),
+                manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name()));
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File(dataPath));
+        fileChooser.setTitle(manager.getPropertyValue(AppPropertyTypes.SCREENSHOT_TOOLTIP.name()));
+        String description = manager.getPropertyValue(AppPropertyTypes.IMG_FILE_EXT_DESC.name());
+        String extension = manager.getPropertyValue(AppPropertyTypes.IMG_FILE_EXT.name());
+        ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
+                String.format("*.%s", extension));
+        fileChooser.getExtensionFilters().add(extFilter);
+        File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
+
+        if (selected != null) {
+            WritableImage img = ((AppUI) applicationTemplate.getUIComponent())
+                    .getChart().snapshot(new SnapshotParameters(), null);
+            try {
+                ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", selected);
+            } catch (IOException e) {
+                ErrorDialog dialog = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
+                String errTitle = manager.getPropertyValue(PropertyTypes.SAVE_ERROR_TITLE.name());
+                String errMsg = manager.getPropertyValue(PropertyTypes.SAVE_ERROR_MSG.name());
+                String errInput = manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name());
+                dialog.show(errTitle, errMsg + errInput);
+                throw e;
+            }
+        }
     }
 
     /**
