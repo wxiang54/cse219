@@ -21,11 +21,12 @@ import vilij.templates.UITemplate;
 
 import static java.io.File.separator;
 import java.io.IOException;
-import javafx.event.EventType;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
 import static vilij.settings.PropertyTypes.CSS_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
@@ -256,9 +257,21 @@ public final class AppUI extends UITemplate {
                 for (Node point : chart.lookupAll(".default-color" + i + ".chart-line-symbol")) {
                     point.setOnMouseEntered(event -> {
                         primaryScene.setCursor(Cursor.CROSSHAIR);
+                        if (((StackPane) point).getChildren().size() > 0) {
+                            Node label = ((StackPane) point).getChildren().get(0);
+                            label.setVisible(true);
+                            label.setManaged(true);
+                            label.toFront();
+                        }
+                        //System.out.println(((StackPane) point).getChildren());
                     });
                     point.setOnMouseExited(event -> {
                         primaryScene.setCursor(Cursor.DEFAULT);
+                        if (((StackPane) point).getChildren().size() > 0) {
+                            Node label = ((StackPane) point).getChildren().get(0);
+                            label.setVisible(false);
+                            label.setManaged(false);
+                        }
                     });
                 }
             }

@@ -7,6 +7,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 import settings.AppPropertyTypes;
 import vilij.propertymanager.PropertyManager;
 
@@ -35,8 +37,6 @@ public final class TSDProcessor {
     }
 
     public static class InvalidFormattingException extends Exception {
-
-        private static final String FORMATTING_ERROR_MSG = "For.";
 
         public InvalidFormattingException(int lineNum) {
             super(String.format("Line %d: Bad Formatting", lineNum));
@@ -104,41 +104,57 @@ public final class TSDProcessor {
      * @param chart the specified chart
      */
     void toChartData(XYChart<Number, Number> chart) {
-        Set<String> labels = new HashSet<>(dataLabels.values());
+        Set<String> labels = new HashSet<>(dataLabels.values()); //inst -> label
         for (String label : labels) {
             XYChart.Series<Number, Number> series = new XYChart.Series<>();
             series.setName(label);
             dataLabels.entrySet().stream().filter(entry -> entry.getValue().equals(label)).forEach(entry -> {
                 Point2D point = dataPoints.get(entry.getKey());
-                series.getData().add(new XYChart.Data<>(point.getX(), point.getY()));
+                //instance name is a label hidden until triggered by hover in AppUI
+                XYChart.Data data = new XYChart.Data<>(point.getX(), point.getY());
+                Label instanceName = new Label(entry.getKey());
+                instanceName.setTranslateY(-20);
+                instanceName.setStyle(
+                        "-fx-font-size: 10;"
+                        + "-fx-font-weight: bold;"
+                        + "-fx-background-color: white;"
+                        + "-fx-border-width: 1px;"
+                        + "-fx-border-radius: 3px;"
+                        + "-fx-border-color: black;"
+                        + "-fx-padding: 1px;");
+                instanceName.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
+                instanceName.setManaged(false);
+                instanceName.setVisible(false);
+                data.setNode(new StackPane(instanceName));
+                series.getData().add(data);
             });
             chart.getData().add(series);
         }
 
         //draw the average y value line
-        double y_sum = 0.0;
-        double x_min = dataPoints.values().iterator().next().getX(); //random x
-        double x_max = dataPoints.values().iterator().next().getX(); //another random x
-        for (Point2D point : dataPoints.values()) {
-            if (point.getX() < x_min) {
-                x_min = point.getX();
+        if (dataPoints.size() > 1) {
+            double y_sum = 0.0;
+            double x_min = dataPoints.values().iterator().next().getX(); //random x
+            double x_max = dataPoints.values().iterator().next().getX(); //another random x
+            for (Point2D point : dataPoints.values()) {
+                if (point.getX() < x_min) {
+                    x_min = point.getX();
+                }
+                if (point.getX() > x_max) {
+                    x_max = point.getX();
+                }
+                y_sum += point.getY();
             }
-            if (point.getX() > x_max) {
-                x_max = point.getX();
-            }
-            y_sum += point.getY();
+            PropertyManager manager = PropertyManager.getManager();
+            double y_avg = y_sum / dataPoints.size();
+            XYChart.Series<Number, Number> line_avg = new XYChart.Series<>();
+            line_avg.getData().addAll(new XYChart.Data<>(x_min, y_avg), new XYChart.Data<>(x_max, y_avg));
+            line_avg.setName(manager.getPropertyValue(AppPropertyTypes.AVG_LINE_NAME.name()));
+            chart.getData().add(line_avg);
+            line_avg.getNode().setId(manager.getPropertyValue(AppPropertyTypes.AVG_LINE_ID.name()));
+            line_avg.getData().get(0).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
+            line_avg.getData().get(1).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
         }
-
-        PropertyManager manager = PropertyManager.getManager();
-
-        double y_avg = y_sum / dataPoints.size();
-        XYChart.Series<Number, Number> line_avg = new XYChart.Series<>();
-        line_avg.getData().addAll(new XYChart.Data<>(x_min, y_avg), new XYChart.Data<>(x_max, y_avg));
-        line_avg.setName(manager.getPropertyValue(AppPropertyTypes.AVG_LINE_NAME.name()));
-        chart.getData().add(line_avg);
-        line_avg.getNode().setId(manager.getPropertyValue(AppPropertyTypes.AVG_LINE_ID.name()));
-        line_avg.getData().get(0).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
-        line_avg.getData().get(1).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
     }
 
     void clear() {
