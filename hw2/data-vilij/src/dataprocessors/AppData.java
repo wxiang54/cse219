@@ -55,7 +55,7 @@ public class AppData implements DataComponent {
         String errInput = manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name());
         dialog.show(errTitle, errMsg + errInput + "\n" + msg);
     }
-    
+
     public void showFileTooLongDialog(int numLines) {
         ErrorDialog dialog = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
         PropertyManager manager = applicationTemplate.manager;
@@ -80,7 +80,7 @@ public class AppData implements DataComponent {
             clear();
             processor.processString(dataString); //stops here if invalid data
             ((AppUI) applicationTemplate.getUIComponent()).updateTextArea(dataString);
-            
+
         } catch (Exception e) {
             System.out.println(e);
             showLoadErrorDialog(e.getMessage(),
@@ -90,7 +90,6 @@ public class AppData implements DataComponent {
 
     public void loadData(String dataString) throws Exception {
         PropertyManager manager = applicationTemplate.manager;
-        //System.out.println("got here");
         try {
             processor.processString(dataString);
         } catch (Exception e) {
@@ -106,7 +105,15 @@ public class AppData implements DataComponent {
         // NOTE: completing this method was not a part of HW 1. You may have implemented file saving from the
         // confirmation dialog elsewhere in a different way.
         try (PrintWriter writer = new PrintWriter(Files.newOutputStream(dataFilePath))) {
-            writer.write(((AppUI) applicationTemplate.getUIComponent()).getCurrentText());
+            AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+            String curText = ui.getCurrentText();
+            String[] remainingData = ui.getRemainingData();
+            int remainingDataInd = ui.getRemainingDataInd();
+            String toAdd = curText.charAt(curText.length() - 1) == '\n' ? "" : "\n";
+            for (int i = remainingDataInd; i < remainingData.length; i++) {
+                toAdd += remainingData[i] + "\n";
+            }
+            writer.write(curText + toAdd);
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }

@@ -51,9 +51,9 @@ public final class AppUI extends UITemplate {
     private TextArea textArea;                  // text area for new data input
     private CheckBox toggleReadOnly;            // read-only checkbox
     private boolean hasNewText;                 // whether text area has new data since last display
-    private String[] allData;                   // full (> 10 lines of) data
-    private String allDataStr;
     private String appCSSPath;                  // path to data-vilij css file
+    private String[] remainingData;             // when > 10 lines, rest of data should be stored here
+    private int remainingDataInd;               // keeps track of where you are in remainingData
 
     public LineChart<Number, Number> getChart() {
         return chart;
@@ -124,6 +124,15 @@ public final class AppUI extends UITemplate {
         return textArea.getText();
     }
 
+    public String[] getRemainingData() {
+        return remainingData;
+    }
+
+    public int getRemainingDataInd() {
+        return remainingDataInd;
+    }
+
+    //upon loading a file
     public void updateTextArea(String data) {
         AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
         dataComponent.clear();
@@ -132,12 +141,18 @@ public final class AppUI extends UITemplate {
         } catch (Exception e) {
             return;
         }
-        allData = data.split("\n");
+        String[] allData = data.split("\n");
+        remainingDataInd = 0;
         if (allData.length > 10) {
             String lastLine = allData[10];
+            remainingData = new String[allData.length - 10];
+            for (int i = 10; i < allData.length; i++) {
+                remainingData[i - 10] = allData[i];
+            }
             textArea.textProperty().setValue(data.substring(0, data.indexOf(lastLine)));
             dataComponent.showFileTooLongDialog(allData.length);
         } else {
+            remainingData = null;
             textArea.textProperty().setValue(data);
         }
     }
@@ -203,6 +218,23 @@ public final class AppUI extends UITemplate {
         textArea.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue.equals(oldValue)) {
+
+                    //check if lines need to be added from remainingData
+                    String[] splitted = newValue.split("\n");
+                    if ((splitted.length < 10 || (splitted.length == 10 && splitted[9].equals("")))
+                            && remainingData != null) {
+                        int numLinesToAdd = 10 - newValue.split("\n").length;
+                        String toAdd = newValue.charAt(newValue.length() - 1) == '\n' ? "" : "\n";
+                        for (int i = 0; i < numLinesToAdd; i++) {
+                            if (remainingDataInd >= remainingData.length) {
+                                break;
+                            }
+                            toAdd += remainingData[remainingDataInd] + "\n";
+                            remainingDataInd++;
+                        }
+                        textArea.textProperty().setValue(textArea.getText() + toAdd);
+                        newValue = textArea.getText() + toAdd;
+                    }
                     if (!newValue.isEmpty()) {
                         ((AppActions) applicationTemplate.getActionComponent()).setIsUnsavedProperty(true);
                         if (newValue.charAt(newValue.length() - 1) == '\n') {
@@ -215,6 +247,7 @@ public final class AppUI extends UITemplate {
                         newButton.setDisable(true);
                         saveButton.setDisable(true);
                     }
+
                 }
             } catch (IndexOutOfBoundsException e) {
                 System.err.println(newValue);
@@ -233,9 +266,14 @@ public final class AppUI extends UITemplate {
             if (hasNewText) {
                 AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
                 dataComponent.clear();
+
                 try {
-                    if (allData != null && allData.length > 10) {
-                        dataComponent.loadData(textArea.getText());
+                    if (remainingData != null && remainingData.length > 0 && remainingDataInd < remainingData.length) {
+                        String toAdd = textArea.getText().charAt(textArea.getText().length() - 1) == '\n' ? "" : "\n";
+                        for (int i = remainingDataInd; i < remainingData.length; i++) {
+                            toAdd += remainingData[i] + "\n";
+                        }
+                        dataComponent.loadData(textArea.getText() + toAdd);
                     } else {
                         dataComponent.loadData(textArea.getText());
                     }
@@ -263,7 +301,6 @@ public final class AppUI extends UITemplate {
                             label.setManaged(true);
                             label.toFront();
                         }
-                        //System.out.println(((StackPane) point).getChildren());
                     });
                     point.setOnMouseExited(event -> {
                         primaryScene.setCursor(Cursor.DEFAULT);
