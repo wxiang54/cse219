@@ -110,8 +110,10 @@ public class AppData implements DataComponent {
             String[] remainingData = ui.getRemainingData();
             int remainingDataInd = ui.getRemainingDataInd();
             String toAdd = curText.charAt(curText.length() - 1) == '\n' ? "" : "\n";
-            for (int i = remainingDataInd; i < remainingData.length; i++) {
-                toAdd += remainingData[i] + "\n";
+            if (remainingData != null) {
+                for (int i = remainingDataInd; i < remainingData.length; i++) {
+                    toAdd += remainingData[i] + "\n";
+                }
             }
             writer.write(curText + toAdd);
         } catch (IOException e) {
