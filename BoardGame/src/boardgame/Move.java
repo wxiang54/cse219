@@ -56,6 +56,12 @@ public abstract class Move {
     public String toString() {
         return this.getClass().getName() + "[" + getWho() + "]";
     }
+    
+    @Override
+    public abstract int hashCode();
+    
+    @Override
+    public abstract boolean equals(Object o);
 
     /**
      * Base class whose objects contain state information necessary in order to

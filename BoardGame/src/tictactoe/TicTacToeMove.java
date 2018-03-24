@@ -47,4 +47,18 @@ public class TicTacToeMove extends Move {
         return location.toString();
     }
 
+    @Override
+    public int hashCode() {
+        return 41*location.getRow() + 43*location.getColumn(); //twin primes
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (this.getClass() != o.getClass()) return false;
+        return this.hashCode() == o.hashCode();
+        
+    }
+    
 }
