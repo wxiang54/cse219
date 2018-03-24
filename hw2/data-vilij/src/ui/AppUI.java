@@ -69,7 +69,7 @@ public final class AppUI extends UITemplate {
     protected void setResourcePaths(ApplicationTemplate applicationTemplate) {
         super.setResourcePaths(applicationTemplate);
         PropertyManager manager = applicationTemplate.manager;
-        appCSSPath = "/" + String.join(separator,
+        appCSSPath = "/" + String.join("/",
                 manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
                 manager.getPropertyValue(CSS_RESOURCE_PATH.name()),
                 manager.getPropertyValue(APP_CSS_RESOURCE_FILENAME.name()));
@@ -79,7 +79,7 @@ public final class AppUI extends UITemplate {
     protected void setToolBar(ApplicationTemplate applicationTemplate) {
         super.setToolBar(applicationTemplate);
         PropertyManager manager = applicationTemplate.manager;
-        String iconsPath = "/" + String.join(separator,
+        String iconsPath = "/" + String.join("/",
                 manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
                 manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
         String scrnshoticonPath = String.join(separator,

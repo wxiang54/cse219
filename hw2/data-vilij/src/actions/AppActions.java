@@ -94,8 +94,8 @@ public final class AppActions implements ActionComponent {
 
             String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
             String extension = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
-            ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
-                    String.format("*.%s", extension));
+            ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (*%s)", description, extension),
+                    String.format("*%s", extension));
             fileChooser.getExtensionFilters().add(extFilter);
             File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
             if (selected == null) {
@@ -134,8 +134,8 @@ public final class AppActions implements ActionComponent {
         fileChooser.setTitle(manager.getPropertyValue(AppPropertyTypes.LOAD_WORK_TITLE.name()));
         String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
         String extension = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
-        ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
-                String.format("*.%s", extension));
+        ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (*%s)", description, extension),
+                String.format("*%s", extension));
         fileChooser.getExtensionFilters().add(extFilter);
         File selected = fileChooser.showOpenDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
 
@@ -178,8 +178,8 @@ public final class AppActions implements ActionComponent {
         fileChooser.setTitle(manager.getPropertyValue(AppPropertyTypes.SCREENSHOT_TOOLTIP.name()));
         String description = manager.getPropertyValue(AppPropertyTypes.IMG_FILE_EXT_DESC.name());
         String extension = manager.getPropertyValue(AppPropertyTypes.IMG_FILE_EXT.name());
-        ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
-                String.format("*.%s", extension));
+        ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (*%s)", description, extension),
+                String.format("*%s", extension));
         fileChooser.getExtensionFilters().add(extFilter);
         File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
 
