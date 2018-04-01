@@ -1,12 +1,15 @@
 package dataprocessors;
 
-import javafx.geometry.Point2D;
-import javafx.scene.chart.XYChart;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import javafx.geometry.Point2D;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import settings.AppPropertyTypes;

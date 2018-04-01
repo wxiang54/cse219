@@ -1,9 +1,18 @@
 package actions;
 
 import dataprocessors.AppData;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javax.imageio.ImageIO;
+import settings.AppPropertyTypes;
+import ui.AppUI;
 import vilij.components.ActionComponent;
 import vilij.components.ConfirmationDialog;
 import vilij.components.Dialog;
@@ -11,21 +20,6 @@ import vilij.components.ErrorDialog;
 import vilij.propertymanager.PropertyManager;
 import vilij.settings.PropertyTypes;
 import vilij.templates.ApplicationTemplate;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Path;
-import ui.AppUI;
-
-import static java.io.File.separator;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.SnapshotParameters;
-import javafx.scene.image.WritableImage;
-import javax.imageio.ImageIO;
-import settings.AppPropertyTypes;
-import static vilij.settings.PropertyTypes.SAVE_WORK_TITLE;
 
 /**
  * This is the concrete implementation of the action handlers required by the
@@ -84,13 +78,13 @@ public final class AppActions implements ActionComponent {
         }
         PropertyManager manager = applicationTemplate.manager;
         if (dataFilePath == null) { //file has not been saved yet
-            String dataPath = String.join(separator,
+            String dataPath = String.join(File.separator,
                     manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PREFIX.name()),
                     manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name()));
 
             FileChooser fileChooser = new FileChooser();
             fileChooser.setInitialDirectory(new File(dataPath));
-            fileChooser.setTitle(manager.getPropertyValue(SAVE_WORK_TITLE.name()));
+            fileChooser.setTitle(manager.getPropertyValue(PropertyTypes.SAVE_WORK_TITLE.name()));
 
             String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
             String extension = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
@@ -125,7 +119,7 @@ public final class AppActions implements ActionComponent {
             return;
         }
 
-        String dataPath = String.join(separator, //always defaults to '/data' for now
+        String dataPath = String.join(File.separator, //always defaults to '/data' for now
                 manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PREFIX.name()),
                 manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name()));
 
@@ -170,7 +164,7 @@ public final class AppActions implements ActionComponent {
         // TODO: NOT A PART OF HW 1
         PropertyManager manager = applicationTemplate.manager;
 
-        String dataPath = String.join(separator, //always defaults to '/data' for now
+        String dataPath = String.join(File.separator, //always defaults to '/data' for now
                 manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PREFIX.name()),
                 manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name()));
         FileChooser fileChooser = new FileChooser();

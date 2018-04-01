@@ -2,6 +2,10 @@ package dataprocessors;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import settings.AppPropertyTypes;
 import ui.AppUI;
 import vilij.components.DataComponent;
@@ -10,11 +14,6 @@ import vilij.components.ErrorDialog;
 import vilij.propertymanager.PropertyManager;
 import vilij.settings.PropertyTypes;
 import vilij.templates.ApplicationTemplate;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * This is the concrete application-specific implementation of the data

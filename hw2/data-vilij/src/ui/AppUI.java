@@ -2,10 +2,16 @@ package ui;
 
 import actions.AppActions;
 import dataprocessors.AppData;
+import java.io.IOException;
+import java.io.File;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
+import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -16,21 +22,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import settings.AppPropertyTypes;
 import vilij.propertymanager.PropertyManager;
+import vilij.settings.PropertyTypes;
 import vilij.templates.ApplicationTemplate;
 import vilij.templates.UITemplate;
-
-import static java.io.File.separator;
-import java.io.IOException;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
-import static vilij.settings.PropertyTypes.CSS_RESOURCE_PATH;
-import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
-import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
 
 /**
  * This is the application's user interface implementation.
@@ -55,14 +49,14 @@ public final class AppUI extends UITemplate {
     private String[] remainingData;             // when > 10 lines, rest of data should be stored here
     private int remainingDataInd;               // keeps track of where you are in remainingData
 
-    public LineChart<Number, Number> getChart() {
-        return chart;
-    }
-
     public AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
         this.applicationTemplate = applicationTemplate;
         primaryScene.getStylesheets().add(appCSSPath);
+    }
+    
+    public LineChart<Number, Number> getChart() {
+        return chart;
     }
 
     @Override
@@ -70,9 +64,9 @@ public final class AppUI extends UITemplate {
         super.setResourcePaths(applicationTemplate);
         PropertyManager manager = applicationTemplate.manager;
         appCSSPath = "/" + String.join("/",
-                manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
-                manager.getPropertyValue(CSS_RESOURCE_PATH.name()),
-                manager.getPropertyValue(APP_CSS_RESOURCE_FILENAME.name()));
+                manager.getPropertyValue(PropertyTypes.GUI_RESOURCE_PATH.name()),
+                manager.getPropertyValue(PropertyTypes.CSS_RESOURCE_PATH.name()),
+                manager.getPropertyValue(AppPropertyTypes.APP_CSS_RESOURCE_FILENAME.name()));
     }
 
     @Override
@@ -80,9 +74,9 @@ public final class AppUI extends UITemplate {
         super.setToolBar(applicationTemplate);
         PropertyManager manager = applicationTemplate.manager;
         String iconsPath = "/" + String.join("/",
-                manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
-                manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
-        String scrnshoticonPath = String.join(separator,
+                manager.getPropertyValue(PropertyTypes.GUI_RESOURCE_PATH.name()),
+                manager.getPropertyValue(PropertyTypes.ICONS_RESOURCE_PATH.name()));
+        String scrnshoticonPath = String.join(File.separator,
                 iconsPath,
                 manager.getPropertyValue(AppPropertyTypes.SCREENSHOT_ICON.name()));
         scrnshotButton = setToolbarButton(scrnshoticonPath,

@@ -3,9 +3,8 @@ package ui;
 import actions.AppActions;
 import dataprocessors.AppData;
 import javafx.stage.Stage;
+import vilij.settings.InitializationParams;
 import vilij.templates.ApplicationTemplate;
-
-import static vilij.settings.InitializationParams.*;
 
 
 /**
@@ -25,9 +24,11 @@ public final class DataVisualizer extends ApplicationTemplate {
 
     @Override
     protected boolean propertyAudit() {
-        boolean failed = manager == null || !(loadProperties(PROPERTIES_XML) && loadProperties(WORKSPACE_PROPERTIES_XML));
+        boolean failed = manager == null || !(loadProperties(InitializationParams.PROPERTIES_XML) 
+                && loadProperties(InitializationParams.WORKSPACE_PROPERTIES_XML));
         if (failed)
-            errorDialog.show(LOAD_ERROR_TITLE.getParameterName(), PROPERTIES_LOAD_ERROR_MESSAGE.getParameterName());
+            errorDialog.show(InitializationParams.LOAD_ERROR_TITLE.getParameterName(), 
+                    InitializationParams.PROPERTIES_LOAD_ERROR_MESSAGE.getParameterName());
         return !failed;
     }
 
