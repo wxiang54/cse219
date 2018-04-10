@@ -29,7 +29,8 @@ public class BarGraphView extends VBox implements DataListener {
      * @param barHeight  Height of a bar.
      */
     public BarGraphView(DataModel data, double scale, int barWidth, int barHeight) {
-        this.data = data;
+        this.data = data;        
+        data.subscribe(this);
         this.scale = scale;
         this.barWidth = barWidth;
         this.barHeight = barHeight;
@@ -70,6 +71,7 @@ public class BarGraphView extends VBox implements DataListener {
     @Override
     public void dataChanged(int index, double value) {
         // TODO Fill this in.
+        bars.get(index).setValue(value);
     }
 
 }

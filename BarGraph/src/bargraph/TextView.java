@@ -1,6 +1,7 @@
 package bargraph;
 
 
+import java.util.ArrayList;
 import javafx.scene.layout.VBox;
 
 /**
@@ -22,6 +23,7 @@ public class TextView extends VBox implements DataListener {
      */
     public TextView(DataModel data) {
         this.data = data;
+        data.subscribe(this);
         initialize();
     }
 
@@ -43,6 +45,19 @@ public class TextView extends VBox implements DataListener {
     @Override
     public void dataChanged(int index, double value) {
         // TODO Auto-generated method stub
+        getChildren().clear();
+        for (int i = 0; i < data.size(); i++) {
+            double v = data.getValue(i);
+            NumericField text = new NumericField(v, COLS);
+            getChildren().add(text);
+            final int ii = i;
+            text.setOnAction(e -> {
+                try {
+                    data.setValue(ii, Double.parseDouble(text.getText()));
+                } catch (NumberFormatException x) {
+                }
+            });
+        }
     }
 
 }
