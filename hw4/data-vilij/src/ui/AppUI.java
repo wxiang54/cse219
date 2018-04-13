@@ -21,6 +21,7 @@ import vilij.templates.UITemplate;
 
 import static java.io.File.separator;
 import java.io.IOException;
+import javafx.event.EventType;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
@@ -65,6 +66,9 @@ public final class AppUI extends UITemplate {
     private Button toggleDoneEditing;           // toggle for textarea after clicking New
     private Text metadataText;                  // algo metadata area
     private VBox algochooser;                   // set of controls/elements related to choosing algo
+    private Accordion chooseAlgoType;           // to add the event listener
+    private TitledPane classification, clustering; //to disable classification in the future
+    
 
     public LineChart<Number, Number> getChart() {
         return chart;
@@ -133,6 +137,10 @@ public final class AppUI extends UITemplate {
         remainingDataInd = 0;
     }
 
+    public void setClassificationDisable(boolean b) {
+        classification.setDisable(b);
+    }
+    
     public TextArea getTextArea() {
         return textArea;
     }
@@ -185,6 +193,7 @@ public final class AppUI extends UITemplate {
         textArea.setDisable(true);
         toggleDoneEditing.setVisible(false);
         algochooser.setVisible(true);
+        runButton.setVisible(false);
     }
 
     public void showLeftPanel_new() {
@@ -193,6 +202,7 @@ public final class AppUI extends UITemplate {
         textArea.setDisable(false);
         toggleDoneEditing.setVisible(true);
         algochooser.setVisible(false);
+        runButton.setVisible(false);
         metadataText.setText("");
     }
 
@@ -234,14 +244,18 @@ public final class AppUI extends UITemplate {
         //displayButton = new Button(manager.getPropertyValue(AppPropertyTypes.DISPLAY_BUTTON_TEXT.name()));
         //HBox.setHgrow(processButtonsBox, Priority.ALWAYS);
         //processButtonsBox.getChildren().addAll(displayButton);
-        runButton = new Button("Test");
+        
 
         String iconsPath = "/" + String.join("/",
                 manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
                 manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
         String configIconPath = String.join(separator, iconsPath,
                 manager.getPropertyValue(AppPropertyTypes.CONFIG_ICON.name()));
-
+        String runIconPath = String.join(separator, iconsPath,
+                manager.getPropertyValue(AppPropertyTypes.RUN_ICON.name()));
+        
+        runButton = new Button("Run", new ImageView(new Image(getClass().getResourceAsStream(runIconPath))));
+        
         algochooser = new VBox(10);
         VBox.setMargin(algochooser, new Insets(10, 0, 0, 0));
 
@@ -249,9 +263,8 @@ public final class AppUI extends UITemplate {
         String atfontname = manager.getPropertyValue(AppPropertyTypes.LEFT_PANE_TITLEFONT.name());
         Double atfontsize = Double.parseDouble(manager.getPropertyValue(AppPropertyTypes.LEFT_PANE_TITLESIZE.name()));
         algotypeText.setFont(Font.font(atfontname, atfontsize));
-        //algotypeText.setUnderline(true);
 
-        Accordion chooseAlgoType = new Accordion();
+        chooseAlgoType = new Accordion();
 
         //classification algos
         String[] classification_algos = {"Algorithm A", "Algorithm B", "Algorithm C"};
@@ -285,8 +298,8 @@ public final class AppUI extends UITemplate {
             gridpane_clustering.add(settings, 1, i); // column, row
         }
 
-        TitledPane classification = new TitledPane("Classification", gridpane_classification);
-        TitledPane clustering = new TitledPane("Clustering", gridpane_clustering);
+        classification = new TitledPane("Classification", gridpane_classification);
+        clustering = new TitledPane("Clustering", gridpane_clustering);
         chooseAlgoType.getPanes().addAll(classification, clustering);
 
         algochooser.getChildren().addAll(algotypeText, chooseAlgoType, runButton);
@@ -311,8 +324,19 @@ public final class AppUI extends UITemplate {
     private void setWorkspaceActions() {
         setTextAreaActions();
         setToggleButtonActions();
+        setTitlePaneActions();
     }
-
+    
+    private void setTitlePaneActions() {
+        chooseAlgoType.expandedPaneProperty().addListener((observable, oldValue, newValue) -> {
+            runButton.setVisible(newValue != null);
+        });
+    }
+    
+    private void setConfigActions() {
+        
+    }
+    
     private void setTextAreaActions() {
         textArea.textProperty().addListener((observable, oldValue, newValue) -> {
             try {

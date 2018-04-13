@@ -97,6 +97,11 @@ public class AppData implements DataComponent {
                 labels += "\n\t- " + s;
             }
             metadata = String.format(metadataFormat, numInstances, numLabels, src, labels);
+            if (numLabels != 2) {
+                ((AppUI)applicationTemplate.getUIComponent()).setClassificationDisable(true);
+            } else {
+                ((AppUI)applicationTemplate.getUIComponent()).setClassificationDisable(false);
+            }
         } else {
             //metadata = ""; //replace??
         }
