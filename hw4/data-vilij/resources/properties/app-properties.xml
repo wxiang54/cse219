@@ -51,7 +51,7 @@ functionality within the main workspace. -->
         <property name="TOGGLE_EDIT_TEXT" value="Edit"/>
         <property name="AVG_LINE_NAME" value="Average Line"/>
         <property name="AVG_LINE_ID" value="avg-line"/>
-        <property name="METADATA_FORMAT" value="%d instances with %d non-null labels loaded from %s. The labels are: %s"/>
+        <property name="METADATA_FORMAT" value="%d instance(s) with %d non-null label(s) loaded from %s. The labels are: %s"/>
         <property name="METADATA_FONT" value="Verdana"/>
         <property name="METADATA_FONTSIZE" value="12"/>
         <property name="METADATA_WRAPWIDTH" value="250"/>

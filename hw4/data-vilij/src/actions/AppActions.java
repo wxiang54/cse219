@@ -13,9 +13,7 @@ import vilij.settings.PropertyTypes;
 import vilij.templates.ApplicationTemplate;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Path;
 import ui.AppUI;
 
@@ -38,7 +36,7 @@ public final class AppActions implements ActionComponent {
     /**
      * The application to which this class of actions belongs.
      */
-    private ApplicationTemplate applicationTemplate;
+    private final ApplicationTemplate applicationTemplate;
 
     /**
      * Path to the data file currently active.
@@ -64,13 +62,13 @@ public final class AppActions implements ActionComponent {
     public void handleNewRequest() {
         try {
             if (!isUnsaved.get() || promptToSave()) {
-                AppUI ui = (AppUI)applicationTemplate.getUIComponent();
+                AppUI ui = (AppUI) applicationTemplate.getUIComponent();
                 applicationTemplate.getDataComponent().clear();
                 ui.clear();
                 isUnsaved.set(false);
                 dataFilePath = null;
-                ui.showLeftPanel(true);
-                ui.getTextArea().setDisable(false);
+                ui.showLeftPanel_new();
+                
             }
         } catch (IOException e) {
             errorHandlingHelper();
@@ -148,7 +146,7 @@ public final class AppActions implements ActionComponent {
             AppData data = (AppData) applicationTemplate.getDataComponent();
             data.loadData(dataFilePath);
             ui.disableSaveButton();
-            data.updateMetadata(dataFilePath);
+            data.updateMetadata(dataFilePath.toString());
             ui.setMetadataText(data.getMetadata());
             isUnsaved.set(false);
         } else {

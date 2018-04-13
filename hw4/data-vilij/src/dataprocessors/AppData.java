@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * This is the concrete application-specific implementation of the data
@@ -87,7 +85,7 @@ public class AppData implements DataComponent {
         dialog.show(errTitle, errMsg);
     }
 
-    public void updateMetadata(Path dataFilePath) {
+    public void updateMetadata(String src) {
         PropertyManager manager = applicationTemplate.manager;
         String metadataFormat = manager.getPropertyValue(AppPropertyTypes.METADATA_FORMAT.name());
         int numInstances, numLabels;
@@ -98,7 +96,7 @@ public class AppData implements DataComponent {
             for (String s : processor.getLabelNames()) {
                 labels += "\n\t- " + s;
             }
-            metadata = String.format(metadataFormat, numInstances, numLabels, dataFilePath.toString(), labels);
+            metadata = String.format(metadataFormat, numInstances, numLabels, src, labels);
         } else {
             //metadata = ""; //replace??
         }
@@ -120,7 +118,7 @@ public class AppData implements DataComponent {
             clear();
             processor.processString(dataString); //stops here if invalid data
             ((AppUI) applicationTemplate.getUIComponent()).updateTextArea(dataString);
-            updateMetadata(dataFilePath);
+            updateMetadata(dataFilePath.toString());
             
         } catch (Exception e) {
             System.out.println(e);

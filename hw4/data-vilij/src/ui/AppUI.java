@@ -52,7 +52,7 @@ public final class AppUI extends UITemplate {
 
     @SuppressWarnings("FieldCanBeLocal")
     private Button scrnshotButton;              // toolbar button to take a screenshot of the data
-    private LineChart<Number, Number> chart; // the chart where data will be displayed
+    private LineChart<Number, Number> chart;    // the chart where data will be displayed
     private TextArea textArea;                  // text area for new data input
     private boolean hasNewText;                 // whether text area has new data since last display
     private String appCSSPath;                  // path to data-vilij css file
@@ -63,7 +63,8 @@ public final class AppUI extends UITemplate {
     //private HBox processButtonsBox;           // to add after New/Load button pressed
     private Button runButton;                   // workspace button to run algorithm
     private Button toggleDoneEditing;           // toggle for textarea after clicking New
-    private Text metadataText;                      // algo metadata area
+    private Text metadataText;                  // algo metadata area
+    private VBox algochooser;                   // set of controls/elements related to choosing algo
 
     public LineChart<Number, Number> getChart() {
         return chart;
@@ -128,6 +129,8 @@ public final class AppUI extends UITemplate {
     public void clear() {
         textArea.clear();
         chart.getData().clear();
+        remainingData = null;
+        remainingDataInd = 0;
     }
 
     public TextArea getTextArea() {
@@ -165,8 +168,7 @@ public final class AppUI extends UITemplate {
             remainingData = null;
             textArea.textProperty().setValue(data);
         }
-        showLeftPanel(false);
-        textArea.setDisable(true);
+        showLeftPanel_load();
     }
 
     public void disableSaveButton() {
@@ -177,10 +179,21 @@ public final class AppUI extends UITemplate {
         metadataText.setText(text);
     }
 
-    public void showLeftPanel(boolean showToggle) {
+    public void showLeftPanel_load() {
         PropertyManager manager = applicationTemplate.manager;
         leftPanel.setVisible(true);
-        toggleDoneEditing.setVisible(showToggle);
+        textArea.setDisable(true);
+        toggleDoneEditing.setVisible(false);
+        algochooser.setVisible(true);
+    }
+
+    public void showLeftPanel_new() {
+        PropertyManager manager = applicationTemplate.manager;
+        leftPanel.setVisible(true);
+        textArea.setDisable(false);
+        toggleDoneEditing.setVisible(true);
+        algochooser.setVisible(false);
+        metadataText.setText("");
     }
 
     private void layout() {
@@ -228,13 +241,16 @@ public final class AppUI extends UITemplate {
                 manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
         String configIconPath = String.join(separator, iconsPath,
                 manager.getPropertyValue(AppPropertyTypes.CONFIG_ICON.name()));
-        
+
+        algochooser = new VBox(10);
+        VBox.setMargin(algochooser, new Insets(10, 0, 0, 0));
+
         Text algotypeText = new Text(manager.getPropertyValue(AppPropertyTypes.ALGO_TYPE_TITLE.name()));
         String atfontname = manager.getPropertyValue(AppPropertyTypes.LEFT_PANE_TITLEFONT.name());
         Double atfontsize = Double.parseDouble(manager.getPropertyValue(AppPropertyTypes.LEFT_PANE_TITLESIZE.name()));
         algotypeText.setFont(Font.font(atfontname, atfontsize));
-        algotypeText.setUnderline(true);
-        
+        //algotypeText.setUnderline(true);
+
         Accordion chooseAlgoType = new Accordion();
 
         //classification algos
@@ -273,8 +289,10 @@ public final class AppUI extends UITemplate {
         TitledPane clustering = new TitledPane("Clustering", gridpane_clustering);
         chooseAlgoType.getPanes().addAll(classification, clustering);
 
-        leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleDoneEditing, 
-                metadataText, algotypeText, chooseAlgoType, runButton);
+        algochooser.getChildren().addAll(algotypeText, chooseAlgoType, runButton);
+
+        leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleDoneEditing,
+                metadataText, algochooser);
 
         StackPane rightPanel = new StackPane(chart);
         rightPanel.setMaxSize(windowWidth * 0.69, windowHeight * 0.69);
@@ -292,7 +310,6 @@ public final class AppUI extends UITemplate {
 
     private void setWorkspaceActions() {
         setTextAreaActions();
-        //setCheckBoxActions();
         setToggleButtonActions();
     }
 
@@ -345,11 +362,12 @@ public final class AppUI extends UITemplate {
     }
      */
     private void setToggleButtonActions() {
+        PropertyManager manager = applicationTemplate.manager;
         toggleDoneEditing.setOnAction(event -> {
-            if (hasNewText) {
+            if (toggleDoneEditing.getText().equals(manager.getPropertyValue(AppPropertyTypes.TOGGLE_DONE_TEXT.name()))) {
+                //if (hasNewText) {
                 AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
                 dataComponent.clear();
-
                 try {
                     if (remainingData != null && remainingData.length > 0 && remainingDataInd < remainingData.length) {
                         String toAdd = textArea.getText().charAt(textArea.getText().length() - 1) == '\n' ? "" : "\n";
@@ -365,9 +383,20 @@ public final class AppUI extends UITemplate {
                     return;
                 }
                 chart.getData().clear();
-                dataComponent.displayData();
-                setDataPointListeners();
-                scrnshotButton.setDisable(false);
+                //dataComponent.displayData();
+                //setDataPointListeners();
+                dataComponent.updateMetadata(manager.getPropertyValue(AppPropertyTypes.TEXT_AREA.name()));
+                setMetadataText(dataComponent.getMetadata());
+                textArea.setDisable(true);
+                toggleDoneEditing.setText(manager.getPropertyValue(AppPropertyTypes.TOGGLE_EDIT_TEXT.name()));
+                algochooser.setVisible(true);
+                //scrnshotButton.setDisable(false);
+                //}
+            } else { //done --> edit
+                textArea.setDisable(false);
+                algochooser.setVisible(false);
+                metadataText.setText("");
+                toggleDoneEditing.setText(manager.getPropertyValue(AppPropertyTypes.TOGGLE_DONE_TEXT.name()));
             }
         });
     }
