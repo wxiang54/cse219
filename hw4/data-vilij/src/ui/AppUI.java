@@ -48,6 +48,7 @@ public final class AppUI extends UITemplate {
      * The application to which this class of actions belongs.
      */
     ApplicationTemplate applicationTemplate;
+    public static final boolean LEFTPANE_VISIBLE = false; //testing purposes
 
     @SuppressWarnings("FieldCanBeLocal")
     private Button scrnshotButton;              // toolbar button to take a screenshot of the data
@@ -194,12 +195,11 @@ public final class AppUI extends UITemplate {
         chart.setVerticalGridLinesVisible(false);
         chart.setVerticalZeroLineVisible(false);
 
-        leftPanel = new VBox(8);
+        leftPanel = new VBox(14);
         leftPanel.setAlignment(Pos.TOP_CENTER);
         leftPanel.setPadding(new Insets(10));
-
         VBox.setVgrow(leftPanel, Priority.ALWAYS);
-        leftPanel.setMaxSize(windowWidth * 0.29, windowHeight * 0.5);
+        //leftPanel.setMaxSize(windowWidth * 0.29, windowHeight * 0.5);
         leftPanel.setMinSize(windowWidth * 0.29, windowHeight * 0.5);
 
         Text leftPanelTitle = new Text(manager.getPropertyValue(AppPropertyTypes.LEFT_PANE_TITLE.name()));
@@ -208,6 +208,7 @@ public final class AppUI extends UITemplate {
         leftPanelTitle.setFont(Font.font(fontname, fontsize));
 
         textArea = new TextArea();
+        textArea.setPrefRowCount(10);
         toggleDoneEditing = new Button(manager.getPropertyValue(AppPropertyTypes.TOGGLE_DONE_TEXT.name()));
 
         metadataText = new Text();
@@ -227,6 +228,13 @@ public final class AppUI extends UITemplate {
                 manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
         String configIconPath = String.join(separator, iconsPath,
                 manager.getPropertyValue(AppPropertyTypes.CONFIG_ICON.name()));
+        
+        Text algotypeText = new Text(manager.getPropertyValue(AppPropertyTypes.ALGO_TYPE_TITLE.name()));
+        String atfontname = manager.getPropertyValue(AppPropertyTypes.LEFT_PANE_TITLEFONT.name());
+        Double atfontsize = Double.parseDouble(manager.getPropertyValue(AppPropertyTypes.LEFT_PANE_TITLESIZE.name()));
+        algotypeText.setFont(Font.font(atfontname, atfontsize));
+        algotypeText.setUnderline(true);
+        
         Accordion chooseAlgoType = new Accordion();
 
         //classification algos
@@ -265,7 +273,8 @@ public final class AppUI extends UITemplate {
         TitledPane clustering = new TitledPane("Clustering", gridpane_clustering);
         chooseAlgoType.getPanes().addAll(classification, clustering);
 
-        leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleDoneEditing, metadataText, chooseAlgoType, runButton);
+        leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleDoneEditing, 
+                metadataText, algotypeText, chooseAlgoType, runButton);
 
         StackPane rightPanel = new StackPane(chart);
         rightPanel.setMaxSize(windowWidth * 0.69, windowHeight * 0.69);
@@ -278,8 +287,7 @@ public final class AppUI extends UITemplate {
         appPane.getChildren().add(workspace);
         VBox.setVgrow(appPane, Priority.ALWAYS);
 
-        //leftPanel.setVisible(false);
-        //leftPanelShown = false;
+        leftPanel.setVisible(LEFTPANE_VISIBLE);
     }
 
     private void setWorkspaceActions() {
