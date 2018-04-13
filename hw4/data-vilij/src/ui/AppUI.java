@@ -24,9 +24,7 @@ import java.io.IOException;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
 import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
 import static vilij.settings.PropertyTypes.CSS_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
@@ -194,7 +192,7 @@ public final class AppUI extends UITemplate {
         HBox.setHgrow(processButtonsBox, Priority.ALWAYS);
         processButtonsBox.getChildren().addAll(displayButton);
 
-        leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleReadOnly, processButtonsBox);
+        //leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleReadOnly, processButtonsBox);
 
         StackPane rightPanel = new StackPane(chart);
         rightPanel.setMaxSize(windowWidth * 0.69, windowHeight * 0.69);

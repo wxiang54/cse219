@@ -42,7 +42,7 @@ functionality within the main workspace. -->
         <property name="LEFT_PANE_TITLE" value="Data File"/>
         <property name="LEFT_PANE_TITLEFONT" value="SansSerif"/>
         <property name="LEFT_PANE_TITLESIZE" value="18"/>
-        <property name="CHART_TITLE" value="Data Visualization"/>
+        <property name="CHART_TITLE" value="Plot"/>
         <property name="DISPLAY_BUTTON_TEXT" value="Display Data"/>
         <property name="TOGGLE_READONLY_TEXT" value="Read Only"/>
         <property name="AVG_LINE_NAME" value="Average Line"/>
