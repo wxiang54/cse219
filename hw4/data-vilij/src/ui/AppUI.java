@@ -24,6 +24,14 @@ import java.io.IOException;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
+import javafx.scene.control.Accordion;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TitledPane;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
 import static vilij.settings.PropertyTypes.CSS_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
@@ -163,7 +171,7 @@ public final class AppUI extends UITemplate {
     public void disableSaveButton() {
         saveButton.setDisable(true);
     }
-    
+
     public void setMetadataText(String text) {
         metadataText.setText(text);
     }
@@ -207,14 +215,57 @@ public final class AppUI extends UITemplate {
         Double mfontsize = Double.parseDouble(manager.getPropertyValue(AppPropertyTypes.METADATA_FONTSIZE.name()));
         metadataText.setFont(Font.font(mfontname, mfontsize));
         metadataText.setWrappingWidth(Double.parseDouble(manager.getPropertyValue(AppPropertyTypes.METADATA_WRAPWIDTH.name())));
-        
+
         //processButtonsBox = new HBox();
         //displayButton = new Button(manager.getPropertyValue(AppPropertyTypes.DISPLAY_BUTTON_TEXT.name()));
         //HBox.setHgrow(processButtonsBox, Priority.ALWAYS);
         //processButtonsBox.getChildren().addAll(displayButton);
-        runButton = new Button();
-        
-        leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleDoneEditing, metadataText);
+        runButton = new Button("Test");
+
+        String iconsPath = "/" + String.join("/",
+                manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
+                manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
+        String configIconPath = String.join(separator, iconsPath,
+                manager.getPropertyValue(AppPropertyTypes.CONFIG_ICON.name()));
+        Accordion chooseAlgoType = new Accordion();
+
+        //classification algos
+        String[] classification_algos = {"Algorithm A", "Algorithm B", "Algorithm C"};
+        GridPane gridpane_classification = new GridPane();
+        gridpane_classification.getColumnConstraints().add(new ColumnConstraints(150));
+        ToggleGroup toggle_classification = new ToggleGroup();
+        for (int i = 0; i < classification_algos.length; i++) {
+            RadioButton b = new RadioButton(classification_algos[i]);
+            b.setToggleGroup(toggle_classification);
+            gridpane_classification.add(b, 0, i); // column, row
+            if (i == 0) {
+                b.setSelected(true);
+            }
+            Button settings = new Button(null, new ImageView(new Image(getClass().getResourceAsStream(configIconPath))));
+            gridpane_classification.add(settings, 1, i); // column, row
+        }
+
+        //clustering algos
+        String[] clustering_algos = {"Algorithm D", "Algorithm E", "Algorithm F"};
+        GridPane gridpane_clustering = new GridPane();
+        gridpane_clustering.getColumnConstraints().add(new ColumnConstraints(150));
+        ToggleGroup toggle_clustering = new ToggleGroup();
+        for (int i = 0; i < clustering_algos.length; i++) {
+            RadioButton b = new RadioButton(clustering_algos[i]);
+            b.setToggleGroup(toggle_clustering);
+            gridpane_clustering.add(b, 0, i); // column, row
+            if (i == 0) {
+                b.setSelected(true);
+            }
+            Button settings = new Button(null, new ImageView(new Image(getClass().getResourceAsStream(configIconPath))));
+            gridpane_clustering.add(settings, 1, i); // column, row
+        }
+
+        TitledPane classification = new TitledPane("Classification", gridpane_classification);
+        TitledPane clustering = new TitledPane("Clustering", gridpane_clustering);
+        chooseAlgoType.getPanes().addAll(classification, clustering);
+
+        leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleDoneEditing, metadataText, chooseAlgoType, runButton);
 
         StackPane rightPanel = new StackPane(chart);
         rightPanel.setMaxSize(windowWidth * 0.69, windowHeight * 0.69);
@@ -227,7 +278,7 @@ public final class AppUI extends UITemplate {
         appPane.getChildren().add(workspace);
         VBox.setVgrow(appPane, Priority.ALWAYS);
 
-        leftPanel.setVisible(false);
+        //leftPanel.setVisible(false);
         //leftPanelShown = false;
     }
 

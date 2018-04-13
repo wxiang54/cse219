@@ -100,7 +100,7 @@ public class AppData implements DataComponent {
             }
             metadata = String.format(metadataFormat, numInstances, numLabels, dataFilePath.toString(), labels);
         } else {
-            metadata = null; //replace??
+            //metadata = ""; //replace??
         }
     }
     

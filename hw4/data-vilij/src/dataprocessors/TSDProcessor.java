@@ -30,11 +30,11 @@ public final class TSDProcessor {
     //file metadata, should be updated every load
     private int numInstances;
     //private int numLabels;
-    private HashSet<String> labelNames;
+    private Set<String> labelNames;
 
     public int getNumInstances()        {return numInstances;}
     //public int getNumLabels()           {return numLabels;}
-    public HashSet<String> getLabelNames()  {return labelNames;}
+    public Set<String> getLabelNames()  {return labelNames;}
     
     public static class InvalidDataNameException extends Exception {
         private static final String NAME_ERROR_MSG = "All data instance names must start with the @ character.";
@@ -75,7 +75,7 @@ public final class TSDProcessor {
         //metadata
         AtomicInteger curNumInstances = new AtomicInteger(0);
         //AtomicInteger curNumLabels = new AtomicInteger(0);
-        HashSet<String> curLabelNames = new HashSet<String>();
+        Set<String> curLabelNames = new HashSet<String>();
         
         Stream.of(tsdString.split("\n"))
                 .map(line -> Arrays.asList(line.split("\t")))
