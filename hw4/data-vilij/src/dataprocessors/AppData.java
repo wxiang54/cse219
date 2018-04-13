@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This is the concrete application-specific implementation of the data
@@ -27,16 +29,37 @@ public class AppData implements DataComponent {
 
     private TSDProcessor processor;
     private ApplicationTemplate applicationTemplate;
+    
+    /*
+    //file metadata, updated every load
+    private int numInstances;
+    private int numLabels;
+    private Set<String> labelNames;
+    private Path dataPath;
 
+    public int getNumInstances()        {return numInstances;}
+    public int getNumLabels()           {return numLabels;}
+    public Set<String> getLabelNames()  {return labelNames;}
+    public Path getDataPath()           {return dataPath;}
+    */
+    
+    private String metadata;
+    public String getMetadata() {return metadata;}
+    
     public AppData(ApplicationTemplate applicationTemplate) {
         this.processor = new TSDProcessor();
         this.applicationTemplate = applicationTemplate;
+        /*
+        this.numInstances = this.numLabels = -1;
+        this.labelNames = new HashSet<String>();
+        this.dataPath = null; //??
+        */
     }
 
     public void processTextArea() throws Exception {
         clear();
         processor.processString(
-                ((AppUI) applicationTemplate.getUIComponent()).getCurrentText());
+                ((AppUI) applicationTemplate.getUIComponent()).getTextArea().getText());
     }
 
     public void showLoadErrorDialog(String msg, String src) {
@@ -64,6 +87,23 @@ public class AppData implements DataComponent {
         dialog.show(errTitle, errMsg);
     }
 
+    public void updateMetadata(Path dataFilePath) {
+        PropertyManager manager = applicationTemplate.manager;
+        String metadataFormat = manager.getPropertyValue(AppPropertyTypes.METADATA_FORMAT.name());
+        int numInstances, numLabels;
+        if (processor.getNumInstances() >= 0) {
+            numInstances = processor.getNumInstances();
+            numLabels = processor.getLabelNames().size();
+            String labels = "";
+            for (String s : processor.getLabelNames()) {
+                labels += "\n\t- " + s;
+            }
+            metadata = String.format(metadataFormat, numInstances, numLabels, dataFilePath.toString(), labels);
+        } else {
+            metadata = null; //replace??
+        }
+    }
+    
     @Override
     public void loadData(Path dataFilePath) {
         // TODO: NOT A PART OF HW 1
@@ -80,7 +120,8 @@ public class AppData implements DataComponent {
             clear();
             processor.processString(dataString); //stops here if invalid data
             ((AppUI) applicationTemplate.getUIComponent()).updateTextArea(dataString);
-
+            updateMetadata(dataFilePath);
+            
         } catch (Exception e) {
             System.out.println(e);
             showLoadErrorDialog(e.getMessage(),
@@ -106,7 +147,7 @@ public class AppData implements DataComponent {
         // confirmation dialog elsewhere in a different way.
         try (PrintWriter writer = new PrintWriter(Files.newOutputStream(dataFilePath))) {
             AppUI ui = (AppUI) applicationTemplate.getUIComponent();
-            String curText = ui.getCurrentText();
+            String curText = ui.getTextArea().getText();
             String[] remainingData = ui.getRemainingData();
             int remainingDataInd = ui.getRemainingDataInd();
             String toAdd = curText.charAt(curText.length() - 1) == '\n' ? "" : "\n";
@@ -120,7 +161,7 @@ public class AppData implements DataComponent {
             System.err.println(e.getMessage());
         }
     }
-
+    
     @Override
     public void clear() {
         processor.clear();

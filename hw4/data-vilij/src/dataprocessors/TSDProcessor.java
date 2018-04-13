@@ -27,26 +27,28 @@ import vilij.propertymanager.PropertyManager;
  */
 public final class TSDProcessor {
 
+    //file metadata, should be updated every load
+    private int numInstances;
+    //private int numLabels;
+    private HashSet<String> labelNames;
+
+    public int getNumInstances()        {return numInstances;}
+    //public int getNumLabels()           {return numLabels;}
+    public HashSet<String> getLabelNames()  {return labelNames;}
+    
     public static class InvalidDataNameException extends Exception {
-
         private static final String NAME_ERROR_MSG = "All data instance names must start with the @ character.";
-
         public InvalidDataNameException(String name, int lineNum) {
             super(String.format("Line %d: Invalid name '%s'. " + NAME_ERROR_MSG, lineNum, name));
         }
     }
-
     public static class InvalidFormattingException extends Exception {
-
         public InvalidFormattingException(int lineNum) {
             super(String.format("Line %d: Bad Formatting", lineNum));
         }
     }
-
     public static class DuplicateNameException extends Exception {
-
         private static final String DUPE_ERROR_MSG = "Duplicate names are not allowed.";
-
         public DuplicateNameException(String name, int lineNum) {
             super(String.format("Line %d: Duplicate name '%s'. " + DUPE_ERROR_MSG, lineNum, name));
         }
@@ -70,21 +72,28 @@ public final class TSDProcessor {
     public void processString(String tsdString) throws Exception {
         AtomicBoolean hadAnError = new AtomicBoolean(false);
         StringBuilder errorMessage = new StringBuilder();
-        AtomicInteger lineCtr = new AtomicInteger(0);
+        //metadata
+        AtomicInteger curNumInstances = new AtomicInteger(0);
+        //AtomicInteger curNumLabels = new AtomicInteger(0);
+        HashSet<String> curLabelNames = new HashSet<String>();
+        
         Stream.of(tsdString.split("\n"))
                 .map(line -> Arrays.asList(line.split("\t")))
                 .forEach(list -> {
                     try {
-                        lineCtr.incrementAndGet();
-                        String name = checkedname(list.get(0), lineCtr.get());
+                        curNumInstances.incrementAndGet();
+                        String name = checkedname(list.get(0), curNumInstances.get());
                         try {
                             String label = list.get(1);
+                            if (!label.equals("null")) {
+                                curLabelNames.add(label);
+                            }
                             String[] pair = list.get(2).split(",");
                             Point2D point = new Point2D(Double.parseDouble(pair[0]), Double.parseDouble(pair[1]));
                             dataLabels.put(name, label);
                             dataPoints.put(name, point);
                         } catch (Exception e) {
-                            throw new InvalidFormattingException(lineCtr.get());
+                            throw new InvalidFormattingException(curNumInstances.get());
                         }
                     } catch (Exception e) {
                         errorMessage.setLength(0);
@@ -94,7 +103,14 @@ public final class TSDProcessor {
                     }
                 });
         if (errorMessage.length() > 0) {
+            //should be empty?
+            numInstances = -1;
+            labelNames = null;
             throw new Exception(errorMessage.toString());
+        } 
+        else {
+            numInstances = curNumInstances.get();
+            labelNames = curLabelNames;
         }
     }
 

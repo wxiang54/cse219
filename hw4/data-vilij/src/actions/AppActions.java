@@ -64,10 +64,13 @@ public final class AppActions implements ActionComponent {
     public void handleNewRequest() {
         try {
             if (!isUnsaved.get() || promptToSave()) {
+                AppUI ui = (AppUI)applicationTemplate.getUIComponent();
                 applicationTemplate.getDataComponent().clear();
-                applicationTemplate.getUIComponent().clear();
+                ui.clear();
                 isUnsaved.set(false);
                 dataFilePath = null;
+                ui.showLeftPanel(true);
+                ui.getTextArea().setDisable(false);
             }
         } catch (IOException e) {
             errorHandlingHelper();
@@ -141,9 +144,12 @@ public final class AppActions implements ActionComponent {
 
         if (selected != null) {
             dataFilePath = selected.toPath();
-            ((AppData) applicationTemplate.getDataComponent()).loadData(dataFilePath);
             AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+            AppData data = (AppData) applicationTemplate.getDataComponent();
+            data.loadData(dataFilePath);
             ui.disableSaveButton();
+            data.updateMetadata(dataFilePath);
+            ui.setMetadataText(data.getMetadata());
             isUnsaved.set(false);
         } else {
             //return false; // if user presses escape after initially selecting 'yes'

@@ -24,7 +24,6 @@ import java.io.IOException;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
-import javafx.scene.control.CheckBox;
 import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
 import static vilij.settings.PropertyTypes.CSS_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
@@ -45,13 +44,17 @@ public final class AppUI extends UITemplate {
     @SuppressWarnings("FieldCanBeLocal")
     private Button scrnshotButton;              // toolbar button to take a screenshot of the data
     private LineChart<Number, Number> chart; // the chart where data will be displayed
-    private Button displayButton;               // workspace button to display data on the chart
     private TextArea textArea;                  // text area for new data input
-    private CheckBox toggleReadOnly;            // read-only checkbox
     private boolean hasNewText;                 // whether text area has new data since last display
     private String appCSSPath;                  // path to data-vilij css file
     private String[] remainingData;             // when > 10 lines, rest of data should be stored here
     private int remainingDataInd;               // keeps track of where you are in remainingData
+    private boolean leftPanelShown;             // self-evident
+    private VBox leftPanel;                     // to add TextBox after New/Load button pressed
+    //private HBox processButtonsBox;           // to add after New/Load button pressed
+    private Button runButton;                   // workspace button to run algorithm
+    private Button toggleDoneEditing;           // toggle for textarea after clicking New
+    private Text metadataText;                      // algo metadata area
 
     public LineChart<Number, Number> getChart() {
         return chart;
@@ -118,8 +121,8 @@ public final class AppUI extends UITemplate {
         chart.getData().clear();
     }
 
-    public String getCurrentText() {
-        return textArea.getText();
+    public TextArea getTextArea() {
+        return textArea;
     }
 
     public String[] getRemainingData() {
@@ -153,10 +156,22 @@ public final class AppUI extends UITemplate {
             remainingData = null;
             textArea.textProperty().setValue(data);
         }
+        showLeftPanel(false);
+        textArea.setDisable(true);
     }
 
     public void disableSaveButton() {
         saveButton.setDisable(true);
+    }
+    
+    public void setMetadataText(String text) {
+        metadataText.setText(text);
+    }
+
+    public void showLeftPanel(boolean showToggle) {
+        PropertyManager manager = applicationTemplate.manager;
+        leftPanel.setVisible(true);
+        toggleDoneEditing.setVisible(showToggle);
     }
 
     private void layout() {
@@ -171,7 +186,7 @@ public final class AppUI extends UITemplate {
         chart.setVerticalGridLinesVisible(false);
         chart.setVerticalZeroLineVisible(false);
 
-        VBox leftPanel = new VBox(8);
+        leftPanel = new VBox(8);
         leftPanel.setAlignment(Pos.TOP_CENTER);
         leftPanel.setPadding(new Insets(10));
 
@@ -185,14 +200,21 @@ public final class AppUI extends UITemplate {
         leftPanelTitle.setFont(Font.font(fontname, fontsize));
 
         textArea = new TextArea();
-        toggleReadOnly = new CheckBox(manager.getPropertyValue(AppPropertyTypes.TOGGLE_READONLY_TEXT.name()));
+        toggleDoneEditing = new Button(manager.getPropertyValue(AppPropertyTypes.TOGGLE_DONE_TEXT.name()));
 
-        HBox processButtonsBox = new HBox();
-        displayButton = new Button(manager.getPropertyValue(AppPropertyTypes.DISPLAY_BUTTON_TEXT.name()));
-        HBox.setHgrow(processButtonsBox, Priority.ALWAYS);
-        processButtonsBox.getChildren().addAll(displayButton);
-
-        //leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleReadOnly, processButtonsBox);
+        metadataText = new Text();
+        String mfontname = manager.getPropertyValue(AppPropertyTypes.METADATA_FONT.name());
+        Double mfontsize = Double.parseDouble(manager.getPropertyValue(AppPropertyTypes.METADATA_FONTSIZE.name()));
+        metadataText.setFont(Font.font(mfontname, mfontsize));
+        metadataText.setWrappingWidth(Double.parseDouble(manager.getPropertyValue(AppPropertyTypes.METADATA_WRAPWIDTH.name())));
+        
+        //processButtonsBox = new HBox();
+        //displayButton = new Button(manager.getPropertyValue(AppPropertyTypes.DISPLAY_BUTTON_TEXT.name()));
+        //HBox.setHgrow(processButtonsBox, Priority.ALWAYS);
+        //processButtonsBox.getChildren().addAll(displayButton);
+        runButton = new Button();
+        
+        leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleDoneEditing, metadataText);
 
         StackPane rightPanel = new StackPane(chart);
         rightPanel.setMaxSize(windowWidth * 0.69, windowHeight * 0.69);
@@ -204,12 +226,15 @@ public final class AppUI extends UITemplate {
 
         appPane.getChildren().add(workspace);
         VBox.setVgrow(appPane, Priority.ALWAYS);
+
+        leftPanel.setVisible(false);
+        //leftPanelShown = false;
     }
 
     private void setWorkspaceActions() {
         setTextAreaActions();
-        setCheckBoxActions();
-        setDisplayButtonActions();
+        //setCheckBoxActions();
+        setToggleButtonActions();
     }
 
     private void setTextAreaActions() {
@@ -253,14 +278,15 @@ public final class AppUI extends UITemplate {
         });
     }
 
+    /*
     private void setCheckBoxActions() {
         toggleReadOnly.selectedProperty().addListener((observable, oldValue, newValue) -> {
             textArea.setDisable(newValue);
         });
     }
-
-    private void setDisplayButtonActions() {
-        displayButton.setOnAction(event -> {
+     */
+    private void setToggleButtonActions() {
+        toggleDoneEditing.setOnAction(event -> {
             if (hasNewText) {
                 AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
                 dataComponent.clear();

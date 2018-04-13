@@ -15,6 +15,8 @@ public enum AppPropertyTypes {
 
     /* user interface icon file names */
     SCREENSHOT_ICON,
+    RUN_ICON,
+    CONFIG_ICON,
 
     /* tooltips for user interface buttons */
     SCREENSHOT_TOOLTIP,
@@ -44,8 +46,13 @@ public enum AppPropertyTypes {
     LEFT_PANE_TITLEFONT,
     LEFT_PANE_TITLESIZE,
     CHART_TITLE,
-    DISPLAY_BUTTON_TEXT,
-    TOGGLE_READONLY_TEXT,
+    RUN_BUTTON_TEXT,
+    TOGGLE_DONE_TEXT,
+    TOGGLE_EDIT_TEXT,
     AVG_LINE_NAME,
-    AVG_LINE_ID
+    AVG_LINE_ID,
+    METADATA_FORMAT,
+    METADATA_FONT,
+    METADATA_FONTSIZE,
+    METADATA_WRAPWIDTH
 }
