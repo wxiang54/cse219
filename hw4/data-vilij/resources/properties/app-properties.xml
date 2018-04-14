@@ -62,6 +62,8 @@ functionality within the main workspace. -->
         <property name="METADATA_FONTSIZE" value="12"/>
         <property name="METADATA_WRAPWIDTH" value="250"/>
         
+        <property name="CLASSIFICATION_ALGOS" value="Algorithm A,Algorithm B,Algorithm C"/>
+        <property name="CLUSTERING_ALGOS" value="Algorithm D,Algorithm E,Algorithm F"/>
 
     </property_list>
     <property_options_list/>

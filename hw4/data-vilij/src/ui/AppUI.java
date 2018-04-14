@@ -285,7 +285,8 @@ public final class AppUI extends UITemplate {
         chooseAlgoType = new Accordion();
 
         //classification algos
-        String[] classification_algos = {"Algorithm A", "Algorithm B", "Algorithm C"};
+        String[] classification_algos = manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGOS.name()).split(",");
+        //{"Algorithm A", "Algorithm B", "Algorithm C"};
         GridPane gridpane_classification = new GridPane();
         gridpane_classification.getColumnConstraints().add(new ColumnConstraints(150));
         toggle_classification = new ToggleGroup();
@@ -324,7 +325,8 @@ public final class AppUI extends UITemplate {
         }
 
         //clustering algos
-        String[] clustering_algos = {"Algorithm D", "Algorithm E", "Algorithm F"};
+        String[] clustering_algos = manager.getPropertyValue(AppPropertyTypes.CLUSTERING_ALGOS.name()).split(",");
+        //{"Algorithm D", "Algorithm E", "Algorithm F"};
         GridPane gridpane_clustering = new GridPane();
         gridpane_clustering.getColumnConstraints().add(new ColumnConstraints(150));
         toggle_clustering = new ToggleGroup();
