@@ -126,7 +126,7 @@ public class AppData implements DataComponent {
             updateMetadata(dataFilePath.toString());
             
         } catch (Exception e) {
-            System.out.println(e);
+            //System.out.println(e);
             showLoadErrorDialog(e.getMessage(),
                     manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name()));
         }
@@ -137,7 +137,7 @@ public class AppData implements DataComponent {
         try {
             processor.processString(dataString);
         } catch (Exception e) {
-            System.out.println(e);
+            //System.out.println(e);
             showLoadErrorDialog(e.getMessage(),
                     manager.getPropertyValue(AppPropertyTypes.TEXT_AREA.name()));
             throw e;

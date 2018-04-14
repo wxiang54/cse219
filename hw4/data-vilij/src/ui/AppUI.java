@@ -469,7 +469,7 @@ public final class AppUI extends UITemplate {
                         dataComponent.loadData(textArea.getText());
                     }
                 } catch (Exception e) {
-                    System.out.println(e);
+                    //System.out.println(e);
                     return;
                 }
                 chart.getData().clear();
