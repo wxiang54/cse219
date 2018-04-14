@@ -34,6 +34,7 @@ public enum AppPropertyTypes {
     CONFIG_DIALOG_ITERATIONS,
     CONFIG_DIALOG_INTERVAL,
     CONFIG_DIALOG_CONT_RUN,
+    CONFIG_DIALOG_CLUSTERS,
     
     /* application-specific messages */
     SAVE_UNSAVED_WORK,

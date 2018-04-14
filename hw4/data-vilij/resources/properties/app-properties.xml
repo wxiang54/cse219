@@ -33,6 +33,7 @@ functionality within the main workspace. -->
         <property name="CONFIG_DIALOG_ITERATIONS" value="Max Iterations: "/>
         <property name="CONFIG_DIALOG_INTERVAL" value="Update Interval: "/>
         <property name="CONFIG_DIALOG_CONT_RUN" value="Continuous Run: "/>
+        <property name="CONFIG_DIALOG_CLUSTERS" value="Number of Clusters: "/>
                
 
         <!-- APPLICATION-SPECIFIC MESSAGES -->

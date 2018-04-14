@@ -20,6 +20,7 @@ public class RandomClusterer extends Clusterer {
 
     private final int maxIterations;
     private final int updateInterval;
+    private final int numClusters;
 
     // currently, this value does not change after instantiation
     private final AtomicBoolean tocontinue;
@@ -38,14 +39,20 @@ public class RandomClusterer extends Clusterer {
     public boolean tocontinue() {
         return tocontinue.get();
     }
+    
+    public int getNumClusters() {
+        return numClusters;
+    }
 
     public RandomClusterer(DataSet dataset,
             int maxIterations,
             int updateInterval,
+            int numClusters,
             boolean tocontinue) {
         this.dataset = dataset;
         this.maxIterations = maxIterations;
         this.updateInterval = updateInterval;
+        this.numClusters = numClusters;
         this.tocontinue = new AtomicBoolean(tocontinue);
     }
 
@@ -85,7 +92,7 @@ public class RandomClusterer extends Clusterer {
      */
     public static void main(String... args) throws IOException {
         DataSet dataset = DataSet.fromTSDFile(Paths.get("/path/to/some-data.tsd"));
-        RandomClusterer clusterer = new RandomClusterer(dataset, 100, 5, true);
+        RandomClusterer clusterer = new RandomClusterer(dataset, 100, 5, 2, true);
         clusterer.run(); // no multithreading yet
     }
 }

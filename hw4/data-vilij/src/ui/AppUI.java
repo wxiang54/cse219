@@ -3,6 +3,7 @@ package ui;
 import actions.AppActions;
 import algorithms.Algorithm;
 import algorithms.classification.RandomClassifier;
+import algorithms.clustering.RandomClusterer;
 import dataprocessors.AppData;
 import dataprocessors.DataSet;
 import javafx.geometry.Insets;
@@ -72,7 +73,11 @@ public final class AppUI extends UITemplate {
     private VBox algochooser;                   // set of controls/elements related to choosing algo
     private Accordion chooseAlgoType;           // to add the event listener
     private TitledPane classification, clustering; //to disable classification in the future
+    private ToggleGroup toggle_classification, toggle_clustering;
+
+    //DIALOGS
     protected final ClassificationConfig config_classification = ClassificationConfig.getDialog();
+    protected final ClusteringConfig config_clustering = ClusteringConfig.getDialog();
 
     private HashMap<String, Algorithm> algorithms; //maps algo name to Algorithm
 
@@ -89,7 +94,7 @@ public final class AppUI extends UITemplate {
 
     protected void configsAudit(Stage primaryStage) {
         config_classification.init(primaryStage);
-        //config_clustering.init(primaryStage);
+        config_clustering.init(primaryStage);
     }
 
     @Override
@@ -214,6 +219,7 @@ public final class AppUI extends UITemplate {
         leftPanel.setVisible(true);
         textArea.setDisable(false);
         toggleDoneEditing.setVisible(true);
+        toggleDoneEditing.setText(manager.getPropertyValue(AppPropertyTypes.TOGGLE_DONE_TEXT.name()));
         algochooser.setVisible(false);
         runButton.setVisible(false);
         metadataText.setText("");
@@ -282,7 +288,7 @@ public final class AppUI extends UITemplate {
         String[] classification_algos = {"Algorithm A", "Algorithm B", "Algorithm C"};
         GridPane gridpane_classification = new GridPane();
         gridpane_classification.getColumnConstraints().add(new ColumnConstraints(150));
-        ToggleGroup toggle_classification = new ToggleGroup();
+        toggle_classification = new ToggleGroup();
         for (int i = 0; i < classification_algos.length; i++) {
             String algoName = classification_algos[i];
             RadioButton b = new RadioButton(algoName);
@@ -306,11 +312,12 @@ public final class AppUI extends UITemplate {
                         && config_classification.getUpdateInterval() != null
                         && config_classification.getContinuousRun() != null) {
                     algorithms.put(algoName,
-                            new RandomClassifier(new DataSet(),
+                            new RandomClassifier(new DataSet(), //CHANGE THIS IN FUTURE
                                     config_classification.getMaxIterations(),
                                     config_classification.getUpdateInterval(),
                                     config_classification.getContinuousRun()));
-                    runButton.setDisable(false);
+                    runButton.setDisable(!algorithms.containsKey(
+                            ((RadioButton)toggle_classification.getSelectedToggle()).getText()));
                 }
             });
             gridpane_classification.add(settings, 1, i); // column, row
@@ -320,20 +327,54 @@ public final class AppUI extends UITemplate {
         String[] clustering_algos = {"Algorithm D", "Algorithm E", "Algorithm F"};
         GridPane gridpane_clustering = new GridPane();
         gridpane_clustering.getColumnConstraints().add(new ColumnConstraints(150));
-        ToggleGroup toggle_clustering = new ToggleGroup();
+        toggle_clustering = new ToggleGroup();
         for (int i = 0; i < clustering_algos.length; i++) {
+            String algoName = clustering_algos[i];
             RadioButton b = new RadioButton(clustering_algos[i]);
             b.setToggleGroup(toggle_clustering);
+            b.setOnAction(e -> {
+                runButton.setDisable(!algorithms.containsKey(algoName));
+            });
             gridpane_clustering.add(b, 0, i); // column, row
             if (i == 0) {
                 b.setSelected(true);
             }
             Button settings = new Button(null, new ImageView(new Image(getClass().getResourceAsStream(configIconPath))));
+            settings.setOnAction(e -> {
+                if (algorithms.containsKey(algoName)) {
+                    RandomClusterer algo = (RandomClusterer) algorithms.get(algoName);
+                    config_clustering.showConfig(algo.getMaxIterations(), algo.getUpdateInterval(),
+                            algo.getNumClusters(), algo.tocontinue());
+                } else {
+                    config_clustering.showConfig();
+                }
+                if (config_clustering.getMaxIterations() != null
+                        && config_clustering.getUpdateInterval() != null
+                        && config_clustering.getNumClusters() != null
+                        && config_clustering.getContinuousRun() != null) {
+                    algorithms.put(algoName,
+                            new RandomClusterer(new DataSet(),
+                                    config_clustering.getMaxIterations(),
+                                    config_clustering.getUpdateInterval(),
+                                    config_clustering.getNumClusters(),
+                                    config_clustering.getContinuousRun()));
+                    runButton.setDisable(!algorithms.containsKey(
+                            ((RadioButton)toggle_clustering.getSelectedToggle()).getText()));
+                }
+            });
             gridpane_clustering.add(settings, 1, i); // column, row
         }
 
         classification = new TitledPane("Classification", gridpane_classification);
         clustering = new TitledPane("Clustering", gridpane_clustering);
+        classification.setOnMouseClicked(e -> {
+            runButton.setDisable(!algorithms.containsKey(
+                            ((RadioButton)toggle_classification.getSelectedToggle()).getText()));
+        });
+        clustering.setOnMouseClicked(e -> {
+            runButton.setDisable(!algorithms.containsKey(
+                            ((RadioButton)toggle_clustering.getSelectedToggle()).getText()));
+        });
         chooseAlgoType.getPanes().addAll(classification, clustering);
 
         algochooser.getChildren().addAll(algotypeText, chooseAlgoType, runButton);
@@ -408,13 +449,6 @@ public final class AppUI extends UITemplate {
         });
     }
 
-    /*
-    private void setCheckBoxActions() {
-        toggleReadOnly.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            textArea.setDisable(newValue);
-        });
-    }
-     */
     private void setToggleButtonActions() {
         PropertyManager manager = applicationTemplate.manager;
         toggleDoneEditing.setOnAction(event -> {
@@ -444,8 +478,11 @@ public final class AppUI extends UITemplate {
                 textArea.setDisable(true);
                 toggleDoneEditing.setText(manager.getPropertyValue(AppPropertyTypes.TOGGLE_EDIT_TEXT.name()));
                 algochooser.setVisible(true);
+                /*
+                if (chooseAlgoType.getExpandedPane() != null) {
+                    runButton.setDisable(false);
+                }*/
                 //scrnshotButton.setDisable(false);
-                //}
             } else { //done --> edit
                 textArea.setDisable(false);
                 algochooser.setVisible(false);

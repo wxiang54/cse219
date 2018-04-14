@@ -68,7 +68,6 @@ public final class AppActions implements ActionComponent {
                 isUnsaved.set(false);
                 dataFilePath = null;
                 ui.showLeftPanel_new();
-                
             }
         } catch (IOException e) {
             errorHandlingHelper();
