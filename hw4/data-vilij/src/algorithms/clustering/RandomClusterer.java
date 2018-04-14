@@ -1,6 +1,6 @@
 package algorithms.clustering;
 import algorithms.Clusterer;
-import data.DataSet;
+import dataprocessors.DataSet;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;

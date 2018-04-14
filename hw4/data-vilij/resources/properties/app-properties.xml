@@ -29,6 +29,11 @@ functionality within the main workspace. -->
         <property name="LOAD_WORK_TITLE" value="Load"/>
         <property name="FILE_TOO_LONG_TITLE" value="File Too Long"/>
         <property name="FILE_TOO_LONG_MSG" value="Loaded data consists of %d lines. Showing only the first 10 in the text area."/>
+        <property name="CONFIG_DIALOG_TITLE" value="Algorithm Run Configuration"/>
+        <property name="CONFIG_DIALOG_ITERATIONS" value="Max Iterations: "/>
+        <property name="CONFIG_DIALOG_INTERVAL" value="Update Interval: "/>
+        <property name="CONFIG_DIALOG_CONT_RUN" value="Continuous Run: "/>
+               
 
         <!-- APPLICATION-SPECIFIC MESSAGES -->
         <property name="SAVE_UNSAVED_WORK" value="Would you like to save current work?"/>

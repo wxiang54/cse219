@@ -2,6 +2,7 @@ package vilij.templates;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import ui.ClassificationConfig;
 import vilij.components.*;
 import vilij.propertymanager.PropertyManager;
 import vilij.settings.InitializationParams;

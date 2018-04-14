@@ -1,4 +1,4 @@
-package data;
+package dataprocessors;
 import javafx.geometry.Point2D;
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,6 +1,6 @@
 package algorithms.classification;
 import algorithms.Classifier;
-import data.DataSet;
+import dataprocessors.DataSet;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;

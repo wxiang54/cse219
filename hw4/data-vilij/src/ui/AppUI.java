@@ -1,7 +1,10 @@
 package ui;
 
 import actions.AppActions;
+import algorithms.Algorithm;
+import algorithms.classification.RandomClassifier;
 import dataprocessors.AppData;
+import dataprocessors.DataSet;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.NumberAxis;
@@ -21,6 +24,7 @@ import vilij.templates.UITemplate;
 
 import static java.io.File.separator;
 import java.io.IOException;
+import java.util.HashMap;
 import javafx.event.EventType;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -68,16 +72,24 @@ public final class AppUI extends UITemplate {
     private VBox algochooser;                   // set of controls/elements related to choosing algo
     private Accordion chooseAlgoType;           // to add the event listener
     private TitledPane classification, clustering; //to disable classification in the future
-    
+    protected final ClassificationConfig config_classification = ClassificationConfig.getDialog();
 
-    public LineChart<Number, Number> getChart() {
-        return chart;
-    }
+    private HashMap<String, Algorithm> algorithms; //maps algo name to Algorithm
 
     public AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
         this.applicationTemplate = applicationTemplate;
         primaryScene.getStylesheets().add(appCSSPath);
+        algorithms = new HashMap<String, Algorithm>();
+    }
+
+    public LineChart<Number, Number> getChart() {
+        return chart;
+    }
+
+    protected void configsAudit(Stage primaryStage) {
+        config_classification.init(primaryStage);
+        //config_clustering.init(primaryStage);
     }
 
     @Override
@@ -125,6 +137,7 @@ public final class AppUI extends UITemplate {
 
     @Override
     public void initialize() {
+        configsAudit(primaryStage);
         layout();
         setWorkspaceActions();
     }
@@ -140,7 +153,7 @@ public final class AppUI extends UITemplate {
     public void setClassificationDisable(boolean b) {
         classification.setDisable(b);
     }
-    
+
     public TextArea getTextArea() {
         return textArea;
     }
@@ -244,8 +257,6 @@ public final class AppUI extends UITemplate {
         //displayButton = new Button(manager.getPropertyValue(AppPropertyTypes.DISPLAY_BUTTON_TEXT.name()));
         //HBox.setHgrow(processButtonsBox, Priority.ALWAYS);
         //processButtonsBox.getChildren().addAll(displayButton);
-        
-
         String iconsPath = "/" + String.join("/",
                 manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
                 manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
@@ -253,9 +264,10 @@ public final class AppUI extends UITemplate {
                 manager.getPropertyValue(AppPropertyTypes.CONFIG_ICON.name()));
         String runIconPath = String.join(separator, iconsPath,
                 manager.getPropertyValue(AppPropertyTypes.RUN_ICON.name()));
-        
+
         runButton = new Button("Run", new ImageView(new Image(getClass().getResourceAsStream(runIconPath))));
-        
+        runButton.setDisable(true);
+
         algochooser = new VBox(10);
         VBox.setMargin(algochooser, new Insets(10, 0, 0, 0));
 
@@ -272,13 +284,35 @@ public final class AppUI extends UITemplate {
         gridpane_classification.getColumnConstraints().add(new ColumnConstraints(150));
         ToggleGroup toggle_classification = new ToggleGroup();
         for (int i = 0; i < classification_algos.length; i++) {
-            RadioButton b = new RadioButton(classification_algos[i]);
+            String algoName = classification_algos[i];
+            RadioButton b = new RadioButton(algoName);
+            b.setOnAction(e -> {
+                runButton.setDisable(!algorithms.containsKey(algoName));
+            });
             b.setToggleGroup(toggle_classification);
             gridpane_classification.add(b, 0, i); // column, row
             if (i == 0) {
                 b.setSelected(true);
             }
             Button settings = new Button(null, new ImageView(new Image(getClass().getResourceAsStream(configIconPath))));
+            settings.setOnAction(e -> {
+                if (algorithms.containsKey(algoName)) {
+                    Algorithm algo = algorithms.get(algoName);
+                    config_classification.showConfig(algo.getMaxIterations(), algo.getUpdateInterval(), algo.tocontinue());
+                } else {
+                    config_classification.showConfig();
+                }
+                if (config_classification.getMaxIterations() != null
+                        && config_classification.getUpdateInterval() != null
+                        && config_classification.getContinuousRun() != null) {
+                    algorithms.put(algoName,
+                            new RandomClassifier(new DataSet(),
+                                    config_classification.getMaxIterations(),
+                                    config_classification.getUpdateInterval(),
+                                    config_classification.getContinuousRun()));
+                    runButton.setDisable(false);
+                }
+            });
             gridpane_classification.add(settings, 1, i); // column, row
         }
 
@@ -326,17 +360,13 @@ public final class AppUI extends UITemplate {
         setToggleButtonActions();
         setTitlePaneActions();
     }
-    
+
     private void setTitlePaneActions() {
         chooseAlgoType.expandedPaneProperty().addListener((observable, oldValue, newValue) -> {
             runButton.setVisible(newValue != null);
         });
     }
-    
-    private void setConfigActions() {
-        
-    }
-    
+
     private void setTextAreaActions() {
         textArea.textProperty().addListener((observable, oldValue, newValue) -> {
             try {

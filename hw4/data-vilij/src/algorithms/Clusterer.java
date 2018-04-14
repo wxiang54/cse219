@@ -1,5 +1,5 @@
 package algorithms;
-import data.DataSet;
+import dataprocessors.DataSet;
 import java.util.List;
 
 /**

@@ -30,6 +30,10 @@ public enum AppPropertyTypes {
     LOAD_WORK_TITLE,
     FILE_TOO_LONG_TITLE,
     FILE_TOO_LONG_MSG,
+    CONFIG_DIALOG_TITLE,
+    CONFIG_DIALOG_ITERATIONS,
+    CONFIG_DIALOG_INTERVAL,
+    CONFIG_DIALOG_CONT_RUN,
     
     /* application-specific messages */
     SAVE_UNSAVED_WORK,
