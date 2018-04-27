@@ -6,6 +6,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Ritwik Banerjee
@@ -56,6 +58,12 @@ public class RandomClassifier extends Classifier {
             int yCoefficient = new Double(RAND.nextDouble() * 100).intValue();
             int constant = new Double(RAND.nextDouble() * 100).intValue();
 
+            /*
+            int xCoefficient = new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
+            int yCoefficient = 10;
+            int constant = RAND.nextInt(11);
+            */
+            
             // this is the real output of the classifier
             output = Arrays.asList(xCoefficient, yCoefficient, constant);
 
@@ -64,11 +72,16 @@ public class RandomClassifier extends Classifier {
             if (i % updateInterval == 0) {
                 System.out.printf("Iteration number %d: ", i); //
                 flush();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(RandomClassifier.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
             if (i > maxIterations * .6 && RAND.nextDouble() < 0.05) {
                 System.out.printf("Iteration number %d: ", i);
                 flush();
-                break;
+                break; //HANDLE THIS
             }
         }
     }

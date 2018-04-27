@@ -2,6 +2,7 @@ package ui;
 
 import actions.AppActions;
 import algorithms.Algorithm;
+import algorithms.Classifier;
 import algorithms.classification.RandomClassifier;
 import algorithms.clustering.RandomClusterer;
 import dataprocessors.AppData;
@@ -25,11 +26,15 @@ import vilij.templates.UITemplate;
 
 import static java.io.File.separator;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import javafx.event.EventType;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TitledPane;
@@ -39,6 +44,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
+import vilij.components.DataComponent;
 import static vilij.settings.PropertyTypes.CSS_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
@@ -79,13 +85,13 @@ public final class AppUI extends UITemplate {
     protected final ClassificationConfig config_classification = ClassificationConfig.getDialog();
     protected final ClusteringConfig config_clustering = ClusteringConfig.getDialog();
 
-    private HashMap<String, Algorithm> algorithms; //maps algo name to Algorithm
+    private final HashMap<String, Algorithm> algorithms; //maps algo name to Algorithm
 
     public AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
         this.applicationTemplate = applicationTemplate;
         primaryScene.getStylesheets().add(appCSSPath);
-        algorithms = new HashMap<String, Algorithm>();
+        algorithms = new HashMap<>();
     }
 
     public LineChart<Number, Number> getChart() {
@@ -318,7 +324,7 @@ public final class AppUI extends UITemplate {
                                     config_classification.getUpdateInterval(),
                                     config_classification.getContinuousRun()));
                     runButton.setDisable(!algorithms.containsKey(
-                            ((RadioButton)toggle_classification.getSelectedToggle()).getText()));
+                            ((RadioButton) toggle_classification.getSelectedToggle()).getText()));
                 }
             });
             gridpane_classification.add(settings, 1, i); // column, row
@@ -361,21 +367,25 @@ public final class AppUI extends UITemplate {
                                     config_clustering.getNumClusters(),
                                     config_clustering.getContinuousRun()));
                     runButton.setDisable(!algorithms.containsKey(
-                            ((RadioButton)toggle_clustering.getSelectedToggle()).getText()));
+                            ((RadioButton) toggle_clustering.getSelectedToggle()).getText()));
                 }
             });
             gridpane_clustering.add(settings, 1, i); // column, row
         }
 
-        classification = new TitledPane("Classification", gridpane_classification);
-        clustering = new TitledPane("Clustering", gridpane_clustering);
+        classification = new TitledPane(
+                manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_TITLE.name()),
+                gridpane_classification);
+        clustering = new TitledPane(
+                manager.getPropertyValue(AppPropertyTypes.CLUSTERING_TITLE.name()),
+                gridpane_clustering);
         classification.setOnMouseClicked(e -> {
             runButton.setDisable(!algorithms.containsKey(
-                            ((RadioButton)toggle_classification.getSelectedToggle()).getText()));
+                    ((RadioButton) toggle_classification.getSelectedToggle()).getText()));
         });
         clustering.setOnMouseClicked(e -> {
             runButton.setDisable(!algorithms.containsKey(
-                            ((RadioButton)toggle_clustering.getSelectedToggle()).getText()));
+                    ((RadioButton) toggle_clustering.getSelectedToggle()).getText()));
         });
         chooseAlgoType.getPanes().addAll(classification, clustering);
 
@@ -398,10 +408,107 @@ public final class AppUI extends UITemplate {
         leftPanel.setVisible(LEFTPANE_VISIBLE);
     }
 
+    public void drawLine(double x0, double y0, double x1, double y1, int A, int B, int C) {
+        PropertyManager manager = applicationTemplate.manager;
+        XYChart.Series<Number, Number> class_line = new XYChart.Series<>();
+        ArrayList<Point2D> points = new ArrayList<>();
+        assert !(A == 0 && B == 0); //can't be both 0
+        if (A == 0) {
+            class_line.getData().add(new XYChart.Data<>(x0, -C / B));
+            class_line.getData().add(new XYChart.Data<>(x1, -C / B));
+            System.out.println("Point added: (" + x0 + ", " + -C / B + ")");
+            System.out.println("Point added: (" + x1 + ", " + -C / B + ")");
+        } else if (B == 0) {
+            class_line.getData().add(new XYChart.Data<>(-C / A, y0));
+            class_line.getData().add(new XYChart.Data<>(-C / A, y1));
+            System.out.println("Point added: (" + -C / A + ", " + y0 + ")");
+            System.out.println("Point added: (" + -C / A + ", " + y1 + ")");
+        } else {
+            if (pointInRect(x0, y0, x1, y1,
+                    -(B * y0 + C) / A, y0)) {
+                class_line.getData().add(new XYChart.Data<>(-(B * y0 + C) / A, y0));
+                System.out.println("Point added: (" + -(B * y0 + C) / A + ", " + y0 + ")");
+            } else if (pointInRect(x0, y0, x1, y1,
+                    x0, -(A * x0 + C) / B)) {
+                class_line.getData().add(new XYChart.Data<>(x0, -(A * x0 + C) / B));
+                System.out.println("Point added: (" + x0 + ", " + -(A * x0 + C) / B + ")");
+            }
+            if (pointInRect(x0, y0, x1, y1,
+                    -(B * y1 + C) / A, y1)) {
+                class_line.getData().add(new XYChart.Data<>(-(B * y1 + C) / A, y1));
+                System.out.println("Point added: (" + -(B * y1 + C) / A + ", " + y1 + ")");
+            } else if (pointInRect(x0, y0, x1, y1,
+                    x1, -(A * x1 + C) / B)) {
+                class_line.getData().add(new XYChart.Data<>(x1, -(A * x1 + C) / B));
+                System.out.println("Point added: (" + x1 + ", " + -(A * x1 + C) / B + ")");
+            }
+        }
+
+        chart.getData().add(class_line);
+        try {
+            class_line.getNode().setId(manager.getPropertyValue(AppPropertyTypes.AVG_LINE_ID.name()));
+            class_line.getData().get(0).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
+            class_line.getData().get(1).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println(e);
+        }
+    }
+
+    private boolean pointInRect(double x0, double y0, double x1, double y1, double pt_x, double pt_y) {
+        return (pt_x >= x0 && pt_x <= x1) && (pt_y >= y0 && pt_y <= y1);
+    }
+
+    //public void update
+    
     private void setWorkspaceActions() {
         setTextAreaActions();
         setToggleButtonActions();
         setTitlePaneActions();
+        setRunButtonActions();
+        //drawLine(0, 0, 110, 110, 20, -64, -300);
+    }
+
+    private void setRunButtonActions() {
+        PropertyManager manager = applicationTemplate.manager;
+        runButton.setOnAction(event -> {
+            chart.getData().clear();
+            AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
+            dataComponent.displayData();
+            
+            String algoName;
+            if (chooseAlgoType.getExpandedPane().getText().equals(
+                    manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_TITLE.name()))) {
+                algoName = ((RadioButton) toggle_classification.getSelectedToggle()).getText();
+            } else if (chooseAlgoType.getExpandedPane().getText().equals(
+                    manager.getPropertyValue(AppPropertyTypes.CLUSTERING_TITLE.name()))) {
+                algoName = ((RadioButton) toggle_clustering.getSelectedToggle()).getText();
+            } else {
+                throw new IllegalStateException("wat did u pick?????");
+            }
+            System.out.println(algoName);
+            Algorithm algo = algorithms.get(algoName);
+            Task task = new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    if (!isCancelled()) {
+                        algo.run();
+                        //TODO: CHANGE TO WORK FOR CLUSTERING ALSO
+                        Platform.runLater(() -> {
+                            runButton.setDisable(true);
+                            //((Classifier) algo).getOutput();
+                            //AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
+                            //dataComponent.clear();
+                            //chart.getData().clear();
+
+                            //dataComponent.displayData();
+                            //scrnshotButton.setDisable(false);
+                        });
+                    }
+                    return null;
+                }
+            };
+            new Thread(task).start();
+        });
     }
 
     private void setTitlePaneActions() {
