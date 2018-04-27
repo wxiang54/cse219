@@ -38,6 +38,9 @@ functionality within the main workspace. -->
 
         <!-- APPLICATION-SPECIFIC MESSAGES -->
         <property name="SAVE_UNSAVED_WORK" value="Would you like to save current work?"/>
+        <property name="CLASSIFICATION_ERROR_TITLE" value="Classification Error"/>
+        <property name="CLASSIFICATION_ERROR_MSG" value="Degenerate line produced by Classification algorithm."/>
+        <property name="OUTOFBOUNDS_MSG" value="Line is out of bounds!"/>
 
         <!-- APPLICATION-SPECIFIC PARAMETERS -->
         <property name="DATA_RESOURCE_PREFIX" value="data-vilij/resources"/>

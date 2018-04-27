@@ -32,23 +32,35 @@ public final class TSDProcessor {
     //private int numLabels;
     private Set<String> labelNames;
 
-    public int getNumInstances()        {return numInstances;}
+    public int getNumInstances() {
+        return numInstances;
+    }
+
     //public int getNumLabels()           {return numLabels;}
-    public Set<String> getLabelNames()  {return labelNames;}
-    
+    public Set<String> getLabelNames() {
+        return labelNames;
+    }
+
     public static class InvalidDataNameException extends Exception {
+
         private static final String NAME_ERROR_MSG = "All data instance names must start with the @ character.";
+
         public InvalidDataNameException(String name, int lineNum) {
             super(String.format("Line %d: Invalid name '%s'. " + NAME_ERROR_MSG, lineNum, name));
         }
     }
+
     public static class InvalidFormattingException extends Exception {
+
         public InvalidFormattingException(int lineNum) {
             super(String.format("Line %d: Bad Formatting", lineNum));
         }
     }
+
     public static class DuplicateNameException extends Exception {
+
         private static final String DUPE_ERROR_MSG = "Duplicate names are not allowed.";
+
         public DuplicateNameException(String name, int lineNum) {
             super(String.format("Line %d: Duplicate name '%s'. " + DUPE_ERROR_MSG, lineNum, name));
         }
@@ -76,7 +88,7 @@ public final class TSDProcessor {
         AtomicInteger curNumInstances = new AtomicInteger(0);
         //AtomicInteger curNumLabels = new AtomicInteger(0);
         Set<String> curLabelNames = new HashSet<String>();
-        
+
         Stream.of(tsdString.split("\n"))
                 .map(line -> Arrays.asList(line.split("\t")))
                 .forEach(list -> {
@@ -107,8 +119,7 @@ public final class TSDProcessor {
             numInstances = -1;
             labelNames = null;
             throw new Exception(errorMessage.toString());
-        } 
-        else {
+        } else {
             numInstances = curNumInstances.get();
             labelNames = curLabelNames;
         }
@@ -162,6 +173,7 @@ public final class TSDProcessor {
                 y_sum += point.getY();
             }
             PropertyManager manager = PropertyManager.getManager();
+            /*
             double y_avg = y_sum / dataPoints.size();
             XYChart.Series<Number, Number> line_avg = new XYChart.Series<>();
             line_avg.getData().addAll(new XYChart.Data<>(x_min, y_avg), new XYChart.Data<>(x_max, y_avg));
@@ -170,6 +182,7 @@ public final class TSDProcessor {
             line_avg.getNode().setId(manager.getPropertyValue(AppPropertyTypes.AVG_LINE_ID.name()));
             line_avg.getData().get(0).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
             line_avg.getData().get(1).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
+             */
         }
     }
 

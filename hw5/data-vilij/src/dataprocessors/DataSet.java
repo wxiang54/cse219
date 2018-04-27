@@ -1,11 +1,14 @@
 package dataprocessors;
+
 import javafx.geometry.Point2D;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 /**
  * This class specifies how an algorithm will expect the dataset to be. It is
@@ -31,8 +34,9 @@ public class DataSet {
     }
 
     private static String nameFormatCheck(String name) throws InvalidDataNameException {
-        if (!name.startsWith("@"))
+        if (!name.startsWith("@")) {
             throw new InvalidDataNameException(name);
+        }
         return name;
     }
 
@@ -41,22 +45,29 @@ public class DataSet {
         return new Point2D(Double.parseDouble(coordinateStrings[0]), Double.parseDouble(coordinateStrings[1]));
     }
 
-    private Map<String, String>  labels;
+    private Map<String, String> labels;
     private Map<String, Point2D> locations;
 
-    /** Creates an empty dataset. */
+    /**
+     * Creates an empty dataset.
+     */
     public DataSet() {
         labels = new HashMap<>();
         locations = new HashMap<>();
     }
 
-    public Map<String, String> getLabels()     { return labels; }
+    public Map<String, String> getLabels() {
+        return labels;
+    }
 
-    public Map<String, Point2D> getLocations() { return locations; }
+    public Map<String, Point2D> getLocations() {
+        return locations;
+    }
 
     public void updateLabel(String instanceName, String newlabel) {
-        if (labels.get(instanceName) == null)
+        if (labels.get(instanceName) == null) {
             throw new NoSuchElementException();
+        }
         labels.put(instanceName, newlabel);
     }
 
@@ -75,6 +86,15 @@ public class DataSet {
                 e.printStackTrace();
             }
         });
+        return dataset;
+    }
+
+    public static DataSet fromString(String tsdString) throws InvalidDataNameException {
+        DataSet dataset = new DataSet();
+        //String[] splitStr = tsdString.split("\n");
+        for (String s : tsdString.split("\n")) {
+            dataset.addInstance(s);
+        }
         return dataset;
     }
 }

@@ -28,6 +28,7 @@ import static java.io.File.separator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
@@ -45,6 +46,9 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
 import vilij.components.DataComponent;
+import vilij.components.Dialog;
+import vilij.components.ErrorDialog;
+import vilij.settings.PropertyTypes;
 import static vilij.settings.PropertyTypes.CSS_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
@@ -76,6 +80,7 @@ public final class AppUI extends UITemplate {
     private Button runButton;                   // workspace button to run algorithm
     private Button toggleDoneEditing;           // toggle for textarea after clicking New
     private Text metadataText;                  // algo metadata area
+    private Text chartMsg;                     // chart notification area
     private VBox algochooser;                   // set of controls/elements related to choosing algo
     private Accordion chooseAlgoType;           // to add the event listener
     private TitledPane classification, clustering; //to disable classification in the future
@@ -242,6 +247,14 @@ public final class AppUI extends UITemplate {
         chart.setHorizontalZeroLineVisible(false);
         chart.setVerticalGridLinesVisible(false);
         chart.setVerticalZeroLineVisible(false);
+        chart.setAnimated(false);
+
+        chartMsg = new Text();
+        String cmfontname = manager.getPropertyValue(AppPropertyTypes.METADATA_FONT.name());
+        Double cmfontsize = Double.parseDouble(manager.getPropertyValue(AppPropertyTypes.METADATA_FONTSIZE.name()));
+        chartMsg.setFont(Font.font(cmfontname, cmfontsize));
+        //metadataText.setWrappingWidth(Double.parseDouble(manager.getPropertyValue(AppPropertyTypes.METADATA_WRAPWIDTH.name())));
+        //chartMsg.setVisible(false);
 
         leftPanel = new VBox(14);
         leftPanel.setAlignment(Pos.TOP_CENTER);
@@ -394,10 +407,12 @@ public final class AppUI extends UITemplate {
         leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleDoneEditing,
                 metadataText, algochooser);
 
-        StackPane rightPanel = new StackPane(chart);
+        VBox rightPanel = new VBox(10);
+        StackPane chartPane = new StackPane(chart);
         rightPanel.setMaxSize(windowWidth * 0.69, windowHeight * 0.69);
         rightPanel.setMinSize(windowWidth * 0.69, windowHeight * 0.69);
         StackPane.setAlignment(rightPanel, Pos.CENTER);
+        rightPanel.getChildren().addAll(chartPane, chartMsg);
 
         workspace = new HBox(leftPanel, rightPanel);
         HBox.setHgrow(workspace, Priority.ALWAYS);
@@ -412,35 +427,49 @@ public final class AppUI extends UITemplate {
         PropertyManager manager = applicationTemplate.manager;
         XYChart.Series<Number, Number> class_line = new XYChart.Series<>();
         ArrayList<Point2D> points = new ArrayList<>();
+        boolean printPoints = false;
         assert !(A == 0 && B == 0); //can't be both 0
         if (A == 0) {
             class_line.getData().add(new XYChart.Data<>(x0, -C / B));
             class_line.getData().add(new XYChart.Data<>(x1, -C / B));
-            System.out.println("Point added: (" + x0 + ", " + -C / B + ")");
-            System.out.println("Point added: (" + x1 + ", " + -C / B + ")");
+            if (printPoints) {
+                System.out.println("Point added: (" + x0 + ", " + -C / B + ")");
+                System.out.println("Point added: (" + x1 + ", " + -C / B + ")");
+            }
         } else if (B == 0) {
             class_line.getData().add(new XYChart.Data<>(-C / A, y0));
             class_line.getData().add(new XYChart.Data<>(-C / A, y1));
-            System.out.println("Point added: (" + -C / A + ", " + y0 + ")");
-            System.out.println("Point added: (" + -C / A + ", " + y1 + ")");
+            if (printPoints) {
+                System.out.println("Point added: (" + -C / A + ", " + y0 + ")");
+                System.out.println("Point added: (" + -C / A + ", " + y1 + ")");
+            }
         } else {
             if (pointInRect(x0, y0, x1, y1,
                     -(B * y0 + C) / A, y0)) {
                 class_line.getData().add(new XYChart.Data<>(-(B * y0 + C) / A, y0));
-                System.out.println("Point added: (" + -(B * y0 + C) / A + ", " + y0 + ")");
+                if (printPoints) {
+                    System.out.println("Point added: (" + -(B * y0 + C) / A + ", " + y0 + ")");
+                }
             } else if (pointInRect(x0, y0, x1, y1,
                     x0, -(A * x0 + C) / B)) {
                 class_line.getData().add(new XYChart.Data<>(x0, -(A * x0 + C) / B));
-                System.out.println("Point added: (" + x0 + ", " + -(A * x0 + C) / B + ")");
+                if (printPoints) {
+                    System.out.println("Point added: (" + x0 + ", " + -(A * x0 + C) / B + ")");
+                }
             }
+
             if (pointInRect(x0, y0, x1, y1,
                     -(B * y1 + C) / A, y1)) {
                 class_line.getData().add(new XYChart.Data<>(-(B * y1 + C) / A, y1));
-                System.out.println("Point added: (" + -(B * y1 + C) / A + ", " + y1 + ")");
+                if (printPoints) {
+                    System.out.println("Point added: (" + -(B * y1 + C) / A + ", " + y1 + ")");
+                }
             } else if (pointInRect(x0, y0, x1, y1,
                     x1, -(A * x1 + C) / B)) {
                 class_line.getData().add(new XYChart.Data<>(x1, -(A * x1 + C) / B));
-                System.out.println("Point added: (" + x1 + ", " + -(A * x1 + C) / B + ")");
+                if (printPoints) {
+                    System.out.println("Point added: (" + x1 + ", " + -(A * x1 + C) / B + ")");
+                }
             }
         }
 
@@ -449,8 +478,9 @@ public final class AppUI extends UITemplate {
             class_line.getNode().setId(manager.getPropertyValue(AppPropertyTypes.AVG_LINE_ID.name()));
             class_line.getData().get(0).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
             class_line.getData().get(1).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
+            chartMsg.setText("");
         } catch (IndexOutOfBoundsException e) {
-            System.out.println(e);
+            chartMsg.setText(manager.getPropertyValue(AppPropertyTypes.OUTOFBOUNDS_MSG.name()));
         }
     }
 
@@ -459,7 +489,6 @@ public final class AppUI extends UITemplate {
     }
 
     //public void update
-    
     private void setWorkspaceActions() {
         setTextAreaActions();
         setToggleButtonActions();
@@ -468,25 +497,77 @@ public final class AppUI extends UITemplate {
         //drawLine(0, 0, 110, 110, 20, -64, -300);
     }
 
+    public void dataChanged_classification(List<Integer> data) {
+        runButton.setDisable(true);
+        textToData();
+        NumberAxis x_axis = (NumberAxis) chart.getXAxis();
+        NumberAxis y_axis = (NumberAxis) chart.getYAxis();
+        x_axis.autoRangingProperty().set(false);
+        y_axis.autoRangingProperty().set(false);
+        drawLine(x_axis.getLowerBound(), y_axis.getLowerBound(),
+                x_axis.getUpperBound(), y_axis.getUpperBound(),
+                data.get(0), data.get(1), data.get(2));
+        //System.out.println("datachanged");
+    }
+
+    public void showErrorDialog_classification() {
+        PropertyManager manager = applicationTemplate.manager;
+        ErrorDialog dialog = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
+        String errTitle = manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ERROR_TITLE.name());
+        String errMsg = manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ERROR_MSG.name());
+        dialog.show(errTitle, errMsg);
+    }
+
+    public void done_classification() {
+        runButton.setDisable(false);
+        System.out.println("done!");
+    }
+
+    private void textToData() {
+        if (hasNewText) {
+            AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
+            dataComponent.clear();
+            try {
+                if (remainingData != null && remainingData.length > 0 && remainingDataInd < remainingData.length) {
+                    String toAdd = textArea.getText().charAt(textArea.getText().length() - 1) == '\n' ? "" : "\n";
+                    for (int i = remainingDataInd; i < remainingData.length; i++) {
+                        toAdd += remainingData[i] + "\n";
+                    }
+                    dataComponent.loadData(textArea.getText() + toAdd);
+                } else {
+                    dataComponent.loadData(textArea.getText());
+                }
+            } catch (Exception e) {
+                System.out.println(e);
+                return;
+            }
+            chart.getData().clear();
+            dataComponent.displayData();
+            setDataPointListeners();
+            scrnshotButton.setDisable(false);
+        }
+    }
+
     private void setRunButtonActions() {
         PropertyManager manager = applicationTemplate.manager;
         runButton.setOnAction(event -> {
-            chart.getData().clear();
-            AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
-            dataComponent.displayData();
-            
+            textToData();
+
             String algoName;
+            Algorithm algo;
             if (chooseAlgoType.getExpandedPane().getText().equals(
                     manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_TITLE.name()))) {
                 algoName = ((RadioButton) toggle_classification.getSelectedToggle()).getText();
+                algo = algorithms.get(algoName);
+                ((Classifier) algo).subscribe(this);
             } else if (chooseAlgoType.getExpandedPane().getText().equals(
                     manager.getPropertyValue(AppPropertyTypes.CLUSTERING_TITLE.name()))) {
                 algoName = ((RadioButton) toggle_clustering.getSelectedToggle()).getText();
+                algo = algorithms.get(algoName);
             } else {
                 throw new IllegalStateException("wat did u pick?????");
             }
             System.out.println(algoName);
-            Algorithm algo = algorithms.get(algoName);
             Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
@@ -494,7 +575,6 @@ public final class AppUI extends UITemplate {
                         algo.run();
                         //TODO: CHANGE TO WORK FOR CLUSTERING ALSO
                         Platform.runLater(() -> {
-                            runButton.setDisable(true);
                             //((Classifier) algo).getOutput();
                             //AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
                             //dataComponent.clear();

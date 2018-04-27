@@ -38,6 +38,9 @@ public enum AppPropertyTypes {
     
     /* application-specific messages */
     SAVE_UNSAVED_WORK,
+    CLASSIFICATION_ERROR_TITLE,
+    CLASSIFICATION_ERROR_MSG,
+    OUTOFBOUNDS_MSG,
     
     /* application-specific parameters */
     DATA_RESOURCE_PREFIX,

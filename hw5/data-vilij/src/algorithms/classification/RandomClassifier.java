@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 
 /**
  * @author Ritwik Banerjee
@@ -54,15 +55,18 @@ public class RandomClassifier extends Classifier {
     @Override
     public void run() {
         for (int i = 1; i <= maxIterations && tocontinue(); i++) {
+            /*
             int xCoefficient = new Double(RAND.nextDouble() * 100).intValue();
             int yCoefficient = new Double(RAND.nextDouble() * 100).intValue();
             int constant = new Double(RAND.nextDouble() * 100).intValue();
-
-            /*
+            */
+            
             int xCoefficient = new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
             int yCoefficient = 10;
             int constant = RAND.nextInt(11);
-            */
+            
+            
+            //xCoefficient = 20; yCoefficient = -64; constant = -300;
             
             // this is the real output of the classifier
             output = Arrays.asList(xCoefficient, yCoefficient, constant);
@@ -72,6 +76,7 @@ public class RandomClassifier extends Classifier {
             if (i % updateInterval == 0) {
                 System.out.printf("Iteration number %d: ", i); //
                 flush();
+                publish();
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException ex) {
@@ -81,9 +86,11 @@ public class RandomClassifier extends Classifier {
             if (i > maxIterations * .6 && RAND.nextDouble() < 0.05) {
                 System.out.printf("Iteration number %d: ", i);
                 flush();
+                publish();
                 break; //HANDLE THIS
             }
         }
+        done();
     }
 
     // for internal viewing only
