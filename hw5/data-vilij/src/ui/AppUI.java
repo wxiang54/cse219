@@ -48,7 +48,6 @@ import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
 import vilij.components.DataComponent;
 import vilij.components.Dialog;
 import vilij.components.ErrorDialog;
-import vilij.settings.PropertyTypes;
 import static vilij.settings.PropertyTypes.CSS_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
@@ -78,13 +77,17 @@ public final class AppUI extends UITemplate {
     private VBox leftPanel;                     // to add TextBox after New/Load button pressed
     //private HBox processButtonsBox;           // to add after New/Load button pressed
     private Button runButton;                   // workspace button to run algorithm
+    private Button nextButton;                  // signals to continue to next interval during non-cont. algo
     private Button toggleDoneEditing;           // toggle for textarea after clicking New
     private Text metadataText;                  // algo metadata area
-    private Text chartMsg;                     // chart notification area
+    private Text chartMsg;                      // chart notification area
     private VBox algochooser;                   // set of controls/elements related to choosing algo
     private Accordion chooseAlgoType;           // to add the event listener
     private TitledPane classification, clustering; //to disable classification in the future
     private ToggleGroup toggle_classification, toggle_clustering;
+
+    private boolean classification_disabled;    // short-term storage of classification titled pane disable
+    private boolean isAlgoRunning;              // whether algo is running (in background)
 
     //DIALOGS
     protected final ClassificationConfig config_classification = ClassificationConfig.getDialog();
@@ -101,6 +104,10 @@ public final class AppUI extends UITemplate {
 
     public LineChart<Number, Number> getChart() {
         return chart;
+    }
+    
+    public boolean isAlgoRunning() {
+        return isAlgoRunning;
     }
 
     protected void configsAudit(Stage primaryStage) {
@@ -161,7 +168,9 @@ public final class AppUI extends UITemplate {
     @Override
     public void clear() {
         textArea.clear();
+        chartMsg.setText("");
         chart.getData().clear();
+        scrnshotButton.setDisable(true);
         remainingData = null;
         remainingDataInd = 0;
     }
@@ -200,18 +209,37 @@ public final class AppUI extends UITemplate {
                 remainingData[i - 10] = allData[i];
             }
             textArea.textProperty().setValue(data.substring(0, data.indexOf(lastLine)));
+            showLeftPanel_load();
             dataComponent.showFileTooLongDialog(allData.length);
         } else {
             remainingData = null;
             textArea.textProperty().setValue(data);
+            showLeftPanel_load();
         }
-        showLeftPanel_load();
     }
 
     public void disableSaveButton() {
         saveButton.setDisable(true);
     }
 
+    public void disableRunButton() {
+        runButton.setDisable(true);
+    }
+
+    /*
+    public void collapseAccordion() {
+        PropertyManager manager = applicationTemplate.manager;
+        if (chooseAlgoType.getExpandedPane().getText().equals(
+                manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_TITLE.name()))) {
+            chooseAlgoType.setExpandedPane(null);
+        }
+    }
+     */
+ /*
+    public void disableScrnshotButton() {
+        scrnshotButton.setDisable(true);
+    }
+     */
     public void setMetadataText(String text) {
         metadataText.setText(text);
     }
@@ -222,7 +250,7 @@ public final class AppUI extends UITemplate {
         textArea.setDisable(true);
         toggleDoneEditing.setVisible(false);
         algochooser.setVisible(true);
-        runButton.setVisible(false);
+        runButton.setVisible(chooseAlgoType.getExpandedPane() != null);
     }
 
     public void showLeftPanel_new() {
@@ -232,7 +260,7 @@ public final class AppUI extends UITemplate {
         toggleDoneEditing.setVisible(true);
         toggleDoneEditing.setText(manager.getPropertyValue(AppPropertyTypes.TOGGLE_DONE_TEXT.name()));
         algochooser.setVisible(false);
-        runButton.setVisible(false);
+        runButton.setVisible(chooseAlgoType.getExpandedPane() != null);
         metadataText.setText("");
     }
 
@@ -292,6 +320,9 @@ public final class AppUI extends UITemplate {
 
         runButton = new Button("Run", new ImageView(new Image(getClass().getResourceAsStream(runIconPath))));
         runButton.setDisable(true);
+
+        nextButton = new Button("Next");
+        nextButton.setVisible(false);
 
         algochooser = new VBox(10);
         VBox.setMargin(algochooser, new Insets(10, 0, 0, 0));
@@ -402,16 +433,18 @@ public final class AppUI extends UITemplate {
         });
         chooseAlgoType.getPanes().addAll(classification, clustering);
 
-        algochooser.getChildren().addAll(algotypeText, chooseAlgoType, runButton);
+        HBox leftButtons = new HBox(15);
+        leftButtons.getChildren().addAll(runButton, nextButton);
+        algochooser.getChildren().addAll(algotypeText, chooseAlgoType, leftButtons);
 
         leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleDoneEditing,
                 metadataText, algochooser);
 
         VBox rightPanel = new VBox(10);
         StackPane chartPane = new StackPane(chart);
-        rightPanel.setMaxSize(windowWidth * 0.69, windowHeight * 0.69);
-        rightPanel.setMinSize(windowWidth * 0.69, windowHeight * 0.69);
-        StackPane.setAlignment(rightPanel, Pos.CENTER);
+        chartPane.setMaxSize(windowWidth * 0.69, windowHeight * 0.69);
+        chartPane.setMinSize(windowWidth * 0.69, windowHeight * 0.69);
+        StackPane.setAlignment(chartPane, Pos.CENTER);
         rightPanel.getChildren().addAll(chartPane, chartMsg);
 
         workspace = new HBox(leftPanel, rightPanel);
@@ -426,6 +459,7 @@ public final class AppUI extends UITemplate {
     public void drawLine(double x0, double y0, double x1, double y1, int A, int B, int C) {
         PropertyManager manager = applicationTemplate.manager;
         XYChart.Series<Number, Number> class_line = new XYChart.Series<>();
+        class_line.setName(manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_LINE_NAME.name()));
         ArrayList<Point2D> points = new ArrayList<>();
         boolean printPoints = false;
         assert !(A == 0 && B == 0); //can't be both 0
@@ -498,7 +532,8 @@ public final class AppUI extends UITemplate {
     }
 
     public void dataChanged_classification(List<Integer> data) {
-        runButton.setDisable(true);
+        //runButton.setDisable(true);
+        //scrnshotButton.setDisable(true);
         textToData();
         NumberAxis x_axis = (NumberAxis) chart.getXAxis();
         NumberAxis y_axis = (NumberAxis) chart.getYAxis();
@@ -507,10 +542,10 @@ public final class AppUI extends UITemplate {
         drawLine(x_axis.getLowerBound(), y_axis.getLowerBound(),
                 x_axis.getUpperBound(), y_axis.getUpperBound(),
                 data.get(0), data.get(1), data.get(2));
-        //System.out.println("datachanged");
+        //System.out.println("published");
     }
 
-    public void showErrorDialog_classification() {
+    public void showErrorDialog_classification() { //probably when both A and B = 0
         PropertyManager manager = applicationTemplate.manager;
         ErrorDialog dialog = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
         String errTitle = manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ERROR_TITLE.name());
@@ -520,6 +555,11 @@ public final class AppUI extends UITemplate {
 
     public void done_classification() {
         runButton.setDisable(false);
+        scrnshotButton.setDisable(false);
+        nextButton.setVisible(false);
+        classification.setDisable(classification_disabled);
+        clustering.setDisable(false);
+        isAlgoRunning = false;
         System.out.println("done!");
     }
 
@@ -544,13 +584,16 @@ public final class AppUI extends UITemplate {
             chart.getData().clear();
             dataComponent.displayData();
             setDataPointListeners();
-            scrnshotButton.setDisable(false);
         }
     }
 
     private void setRunButtonActions() {
         PropertyManager manager = applicationTemplate.manager;
         runButton.setOnAction(event -> {
+            isAlgoRunning = true;
+            classification_disabled = classification.isDisable();
+            classification.setDisable(true);
+            clustering.setDisable(true);
             textToData();
 
             String algoName;
@@ -559,7 +602,11 @@ public final class AppUI extends UITemplate {
                     manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_TITLE.name()))) {
                 algoName = ((RadioButton) toggle_classification.getSelectedToggle()).getText();
                 algo = algorithms.get(algoName);
+                nextButton.setVisible(!algo.tocontinue()); //visible when non-cont
                 ((Classifier) algo).subscribe(this);
+                nextButton.setOnAction(e -> {
+                    algo.wake();
+                });
             } else if (chooseAlgoType.getExpandedPane().getText().equals(
                     manager.getPropertyValue(AppPropertyTypes.CLUSTERING_TITLE.name()))) {
                 algoName = ((RadioButton) toggle_clustering.getSelectedToggle()).getText();
@@ -567,7 +614,11 @@ public final class AppUI extends UITemplate {
             } else {
                 throw new IllegalStateException("wat did u pick?????");
             }
+
+            runButton.setDisable(true);
+            scrnshotButton.setDisable(algo.tocontinue());
             System.out.println(algoName);
+
             Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {

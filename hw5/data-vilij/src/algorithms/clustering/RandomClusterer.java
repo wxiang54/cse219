@@ -40,6 +40,11 @@ public class RandomClusterer extends Clusterer {
         return tocontinue.get();
     }
     
+    @Override
+    public void wake() {
+        
+    }
+    
     public int getNumClusters() {
         return numClusters;
     }

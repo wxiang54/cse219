@@ -13,5 +13,7 @@ public interface Algorithm extends Runnable {
     int getUpdateInterval();
 
     boolean tocontinue();
+    
+    void wake();
 
 }

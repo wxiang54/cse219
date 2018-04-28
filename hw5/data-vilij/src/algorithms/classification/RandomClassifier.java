@@ -1,4 +1,5 @@
 package algorithms.classification;
+
 import algorithms.Classifier;
 import dataprocessors.DataSet;
 import java.io.IOException;
@@ -8,7 +9,6 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
 
 /**
  * @author Ritwik Banerjee
@@ -23,6 +23,7 @@ public class RandomClassifier extends Classifier {
 
     private final int maxIterations;
     private final int updateInterval;
+    private final boolean continuousRun;
 
     // currently, this value does not change after instantiation
     private final AtomicBoolean tocontinue;
@@ -42,6 +43,12 @@ public class RandomClassifier extends Classifier {
         return tocontinue.get();
     }
 
+    @Override
+    public synchronized void wake() {
+        tocontinue.set(true);
+        notifyAll();
+    }
+
     public RandomClassifier(DataSet dataset,
             int maxIterations,
             int updateInterval,
@@ -49,45 +56,59 @@ public class RandomClassifier extends Classifier {
         this.dataset = dataset;
         this.maxIterations = maxIterations;
         this.updateInterval = updateInterval;
-        this.tocontinue = new AtomicBoolean(tocontinue);
+        this.tocontinue = new AtomicBoolean(tocontinue); //becomes lock
+        this.continuousRun = tocontinue; //permanent version
     }
 
     @Override
-    public void run() {
-        for (int i = 1; i <= maxIterations && tocontinue(); i++) {
+    public synchronized void run() {
+        for (int i = 1; i <= maxIterations; i++) {
             /*
             int xCoefficient = new Double(RAND.nextDouble() * 100).intValue();
             int yCoefficient = new Double(RAND.nextDouble() * 100).intValue();
             int constant = new Double(RAND.nextDouble() * 100).intValue();
-            */
-            
+             */
             int xCoefficient = new Long(-1 * Math.round((2 * RAND.nextDouble() - 1) * 10)).intValue();
             int yCoefficient = 10;
             int constant = RAND.nextInt(11);
-            
-            
-            //xCoefficient = 20; yCoefficient = -64; constant = -300;
-            
+
             // this is the real output of the classifier
             output = Arrays.asList(xCoefficient, yCoefficient, constant);
 
             // everything below is just for internal viewing of how the output is changing
             // in the final project, such changes will be dynamically visible in the UI
-            if (i % updateInterval == 0) {
-                System.out.printf("Iteration number %d: ", i); //
-                flush();
-                publish();
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(RandomClassifier.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
             if (i > maxIterations * .6 && RAND.nextDouble() < 0.05) {
                 System.out.printf("Iteration number %d: ", i);
                 flush();
                 publish();
                 break; //HANDLE THIS
+            }
+
+            if (i % updateInterval == 0) {
+                System.out.printf("Iteration number %d: ", i); //
+                flush();
+                publish();
+                if (continuousRun) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(RandomClassifier.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    tocontinue.set(false);
+                    if (i + 1 >= maxIterations) {
+                        break;
+                    }
+                    //stall until tocontinue() changed back to true
+                    while (!tocontinue()) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            System.out.println("???????//");
+                            //do nothing
+                        }
+                    }
+                }
             }
         }
         done();

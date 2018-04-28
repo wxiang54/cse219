@@ -142,6 +142,7 @@ public final class AppActions implements ActionComponent {
         if (selected != null) {
             dataFilePath = selected.toPath();
             AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+            ui.clear();
             AppData data = (AppData) applicationTemplate.getDataComponent();
             data.loadData(dataFilePath);
             ui.disableSaveButton();

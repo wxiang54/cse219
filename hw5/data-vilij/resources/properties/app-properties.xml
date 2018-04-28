@@ -66,6 +66,7 @@ functionality within the main workspace. -->
         <property name="METADATA_WRAPWIDTH" value="250"/>
         
         <property name="CLASSIFICATION_TITLE" value="Classification"/>
+        <property name="CLASSIFICATION_LINE_NAME" value="Classification Line"/>
         <property name="CLUSTERING_TITLE" value="Clustering"/>
         <property name="CLASSIFICATION_ALGOS" value="Random Classifier,Algorithm B,Algorithm C"/>
         <property name="CLUSTERING_ALGOS" value="Algorithm D,Algorithm E,Algorithm F"/>
