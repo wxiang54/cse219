@@ -607,7 +607,7 @@ public final class AppUI extends UITemplate {
             System.out.println(algoName);
 
             if (algoTask != null) {
-                cancelAlgoTask();
+                algoTask.cancel();
             }
             algoTask = new Task() {
                 @Override
