@@ -74,18 +74,18 @@ public class RandomClassifier extends Classifier {
 
             // this is the real output of the classifier
             output = Arrays.asList(xCoefficient, yCoefficient, constant);
-
+            
             // everything below is just for internal viewing of how the output is changing
             // in the final project, such changes will be dynamically visible in the UI
-            if (i > maxIterations * .6 && RAND.nextDouble() < 0.05) {
+            if (i >= maxIterations || (i > maxIterations * .6 && RAND.nextDouble() < 0.05)) {
                 System.out.printf("Iteration number %d: ", i);
                 flush();
                 publish();
                 break; //HANDLE THIS
             }
-
+            
             if (i % updateInterval == 0) {
-                System.out.printf("Iteration number %d: ", i); //
+                System.out.printf("Iteration number %d: ", i);
                 flush();
                 publish();
                 if (continuousRun) {
@@ -96,21 +96,19 @@ public class RandomClassifier extends Classifier {
                     }
                 } else {
                     tocontinue.set(false);
-                    if (i + 1 >= maxIterations) {
-                        break;
-                    }
                     //stall until tocontinue() changed back to true
                     while (!tocontinue()) {
                         try {
                             wait();
                         } catch (InterruptedException e) {
-                            System.out.println("???????//");
+                            System.out.println("task interrupted...");
                             //do nothing
                         }
                     }
                 }
             }
         }
+        tocontinue.set(continuousRun);
         done();
     }
 

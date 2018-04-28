@@ -47,27 +47,34 @@ public final class AppActions implements ActionComponent {
      * The boolean property marking whether or not there are any unsaved
      * changes.
      */
-    SimpleBooleanProperty isUnsaved;
+    SimpleBooleanProperty isUnsaved, isAlgoRunning;
 
     public AppActions(ApplicationTemplate applicationTemplate) {
         this.applicationTemplate = applicationTemplate;
         this.isUnsaved = new SimpleBooleanProperty(false);
+        this.isAlgoRunning = new SimpleBooleanProperty(false);
     }
 
     public void setIsUnsavedProperty(boolean property) {
         isUnsaved.set(property);
     }
 
+    public void setIsAlgoRunningProperty(boolean property) {
+        isAlgoRunning.set(property);
+    }
+
     @Override
     public void handleNewRequest() {
         try {
             if (!isUnsaved.get() || promptToSave()) {
-                AppUI ui = (AppUI) applicationTemplate.getUIComponent();
-                applicationTemplate.getDataComponent().clear();
-                ui.clear();
-                isUnsaved.set(false);
-                dataFilePath = null;
-                ui.showLeftPanel_new();
+                if (!isAlgoRunning.get() || promptAlgoRunning()) {
+                    AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+                    applicationTemplate.getDataComponent().clear();
+                    ui.clear();
+                    isUnsaved.set(false);
+                    dataFilePath = null;
+                    ui.showLeftPanel_new();
+                }
             }
         } catch (IOException e) {
             errorHandlingHelper();
@@ -115,10 +122,11 @@ public final class AppActions implements ActionComponent {
         // TODO: NOT A PART OF HW 1
         PropertyManager manager = applicationTemplate.manager;
         try {
-            if (isUnsaved.get()) {
-                if (!promptToSave()) {
-                    return;
-                }
+            if (isUnsaved.get() && !promptToSave()) {
+                return;
+            }
+            if (isAlgoRunning.get() && !promptAlgoRunning()) {
+                return;
             }
         } catch (IOException e) {
             errorHandlingHelper();
@@ -158,7 +166,9 @@ public final class AppActions implements ActionComponent {
     public void handleExitRequest() {
         try {
             if (!isUnsaved.get() || promptToSave()) {
-                System.exit(0);
+                if (!isAlgoRunning.get() || promptAlgoRunning()) {
+                    System.exit(0);
+                }
             }
         } catch (IOException e) {
             errorHandlingHelper();
@@ -240,6 +250,24 @@ public final class AppActions implements ActionComponent {
         return !dialog.getSelectedOption().equals(ConfirmationDialog.Option.CANCEL);
     }
 
+    //functionally work similar as promptToSave, but for when user clicks new/load/exit when algo is running
+    private boolean promptAlgoRunning() throws IOException {
+        PropertyManager manager = applicationTemplate.manager;
+        ConfirmationDialog dialog = ConfirmationDialog.getDialog();
+        dialog.show(manager.getPropertyValue(AppPropertyTypes.ALGO_RUNNING_TITLE.name()),
+                manager.getPropertyValue(AppPropertyTypes.ALGO_RUNNING.name()));
+
+        if (dialog.getSelectedOption() == null) {
+            return false; // if user closes dialog using the window's close button
+        }
+        if (dialog.getSelectedOption().equals(ConfirmationDialog.Option.YES)) {
+            setIsAlgoRunningProperty(false);
+            ((AppUI) applicationTemplate.getUIComponent()).cancelAlgoTask();
+            return true;
+        }
+        return false;
+    }
+
     private void save() throws IOException {
         applicationTemplate.getDataComponent().saveData(dataFilePath);
         isUnsaved.set(false);
@@ -254,4 +282,5 @@ public final class AppActions implements ActionComponent {
         String errInput = manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name());
         dialog.show(errTitle, errMsg + errInput);
     }
+
 }

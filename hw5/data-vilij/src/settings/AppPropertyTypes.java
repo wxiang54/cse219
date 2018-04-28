@@ -17,6 +17,7 @@ public enum AppPropertyTypes {
     SCREENSHOT_ICON,
     RUN_ICON,
     CONFIG_ICON,
+    NEXT_ICON,
 
     /* tooltips for user interface buttons */
     SCREENSHOT_TOOLTIP,
@@ -27,9 +28,10 @@ public enum AppPropertyTypes {
 
     /* application-specific message titles */
     SAVE_UNSAVED_WORK_TITLE,
+    CLASSIFICATION_ERROR_TITLE,
+    ALGO_RUNNING_TITLE,
     LOAD_WORK_TITLE,
     FILE_TOO_LONG_TITLE,
-    FILE_TOO_LONG_MSG,
     CONFIG_DIALOG_TITLE,
     CONFIG_DIALOG_ITERATIONS,
     CONFIG_DIALOG_INTERVAL,
@@ -38,7 +40,8 @@ public enum AppPropertyTypes {
     
     /* application-specific messages */
     SAVE_UNSAVED_WORK,
-    CLASSIFICATION_ERROR_TITLE,
+    ALGO_RUNNING,
+    FILE_TOO_LONG_MSG,
     CLASSIFICATION_ERROR_MSG,
     OUTOFBOUNDS_MSG,
     

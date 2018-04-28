@@ -12,6 +12,7 @@ functionality within the main workspace. -->
         <property name="SCREENSHOT_ICON" value="screenshot.png"/>
         <property name="RUN_ICON" value="run.png"/>
         <property name="CONFIG_ICON" value="settings.png"/>
+        <property name="NEXT_ICON" value="next.png"/>
 
         <!-- TOOLTIPS FOR BUTTONS -->
         <property name="SCREENSHOT_TOOLTIP" value="Screenshot"/> <!-- will print current view of image to a file -->
@@ -26,19 +27,21 @@ functionality within the main workspace. -->
 
         <!-- APPLICATION-SPECIFIC MESSAGE TITLES -->
         <property name="SAVE_UNSAVED_WORK_TITLE" value="Save Current Work"/>
+        <property name="CLASSIFICATION_ERROR_TITLE" value="Classification Error"/>
+        <property name="ALGO_RUNNING_TITLE" value="Algorithm Running"/>
         <property name="LOAD_WORK_TITLE" value="Load"/>
         <property name="FILE_TOO_LONG_TITLE" value="File Too Long"/>
-        <property name="FILE_TOO_LONG_MSG" value="Loaded data consists of %d lines. Showing only the first 10 in the text area."/>
+        
         <property name="CONFIG_DIALOG_TITLE" value="Algorithm Run Configuration"/>
         <property name="CONFIG_DIALOG_ITERATIONS" value="Max Iterations: "/>
         <property name="CONFIG_DIALOG_INTERVAL" value="Update Interval: "/>
         <property name="CONFIG_DIALOG_CONT_RUN" value="Continuous Run: "/>
         <property name="CONFIG_DIALOG_CLUSTERS" value="Number of Clusters: "/>
-               
-
+              
         <!-- APPLICATION-SPECIFIC MESSAGES -->
         <property name="SAVE_UNSAVED_WORK" value="Would you like to save current work?"/>
-        <property name="CLASSIFICATION_ERROR_TITLE" value="Classification Error"/>
+        <property name="ALGO_RUNNING" value="An algorithm is currently running. Are you sure?"/>
+        <property name="FILE_TOO_LONG_MSG" value="Loaded data consists of %d lines. Showing only the first 10 in the text area."/>
         <property name="CLASSIFICATION_ERROR_MSG" value="Degenerate line produced by Classification algorithm."/>
         <property name="OUTOFBOUNDS_MSG" value="Line is out of bounds!"/>
 

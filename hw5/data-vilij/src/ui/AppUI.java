@@ -87,7 +87,7 @@ public final class AppUI extends UITemplate {
     private ToggleGroup toggle_classification, toggle_clustering;
 
     private boolean classification_disabled;    // short-term storage of classification titled pane disable
-    private boolean isAlgoRunning;              // whether algo is running (in background)
+    private Task algoTask;                      // main task for running algorithm
 
     //DIALOGS
     protected final ClassificationConfig config_classification = ClassificationConfig.getDialog();
@@ -104,10 +104,6 @@ public final class AppUI extends UITemplate {
 
     public LineChart<Number, Number> getChart() {
         return chart;
-    }
-    
-    public boolean isAlgoRunning() {
-        return isAlgoRunning;
     }
 
     protected void configsAudit(Stage primaryStage) {
@@ -226,20 +222,6 @@ public final class AppUI extends UITemplate {
         runButton.setDisable(true);
     }
 
-    /*
-    public void collapseAccordion() {
-        PropertyManager manager = applicationTemplate.manager;
-        if (chooseAlgoType.getExpandedPane().getText().equals(
-                manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_TITLE.name()))) {
-            chooseAlgoType.setExpandedPane(null);
-        }
-    }
-     */
- /*
-    public void disableScrnshotButton() {
-        scrnshotButton.setDisable(true);
-    }
-     */
     public void setMetadataText(String text) {
         metadataText.setText(text);
     }
@@ -317,11 +299,13 @@ public final class AppUI extends UITemplate {
                 manager.getPropertyValue(AppPropertyTypes.CONFIG_ICON.name()));
         String runIconPath = String.join(separator, iconsPath,
                 manager.getPropertyValue(AppPropertyTypes.RUN_ICON.name()));
+        String nextIconPath = String.join(separator, iconsPath,
+                manager.getPropertyValue(AppPropertyTypes.NEXT_ICON.name()));
 
         runButton = new Button("Run", new ImageView(new Image(getClass().getResourceAsStream(runIconPath))));
         runButton.setDisable(true);
 
-        nextButton = new Button("Next");
+        nextButton = new Button("Next", new ImageView(new Image(getClass().getResourceAsStream(nextIconPath))));
         nextButton.setVisible(false);
 
         algochooser = new VBox(10);
@@ -533,7 +517,7 @@ public final class AppUI extends UITemplate {
 
     public void dataChanged_classification(List<Integer> data) {
         //runButton.setDisable(true);
-        //scrnshotButton.setDisable(true);
+        //scrnshotButton.setDisable(tocontinue);
         textToData();
         NumberAxis x_axis = (NumberAxis) chart.getXAxis();
         NumberAxis y_axis = (NumberAxis) chart.getYAxis();
@@ -557,9 +541,10 @@ public final class AppUI extends UITemplate {
         runButton.setDisable(false);
         scrnshotButton.setDisable(false);
         nextButton.setVisible(false);
+        toggleDoneEditing.setDisable(false);
         classification.setDisable(classification_disabled);
         clustering.setDisable(false);
-        isAlgoRunning = false;
+        ((AppActions) applicationTemplate.getActionComponent()).setIsAlgoRunningProperty(false);
         System.out.println("done!");
     }
 
@@ -590,10 +575,11 @@ public final class AppUI extends UITemplate {
     private void setRunButtonActions() {
         PropertyManager manager = applicationTemplate.manager;
         runButton.setOnAction(event -> {
-            isAlgoRunning = true;
+            ((AppActions) applicationTemplate.getActionComponent()).setIsAlgoRunningProperty(true);
             classification_disabled = classification.isDisable();
             classification.setDisable(true);
             clustering.setDisable(true);
+            toggleDoneEditing.setDisable(true);
             textToData();
 
             String algoName;
@@ -605,6 +591,7 @@ public final class AppUI extends UITemplate {
                 nextButton.setVisible(!algo.tocontinue()); //visible when non-cont
                 ((Classifier) algo).subscribe(this);
                 nextButton.setOnAction(e -> {
+                    //scrnshotButton.setDisable(true);
                     algo.wake();
                 });
             } else if (chooseAlgoType.getExpandedPane().getText().equals(
@@ -619,29 +606,28 @@ public final class AppUI extends UITemplate {
             scrnshotButton.setDisable(algo.tocontinue());
             System.out.println(algoName);
 
-            Task task = new Task() {
+            if (algoTask != null) {
+                cancelAlgoTask();
+            }
+            algoTask = new Task() {
                 @Override
                 protected Object call() throws Exception {
                     if (!isCancelled()) {
                         algo.run();
                         //TODO: CHANGE TO WORK FOR CLUSTERING ALSO
-                        Platform.runLater(() -> {
-                            //((Classifier) algo).getOutput();
-                            //AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
-                            //dataComponent.clear();
-                            //chart.getData().clear();
-
-                            //dataComponent.displayData();
-                            //scrnshotButton.setDisable(false);
-                        });
                     }
                     return null;
                 }
             };
-            new Thread(task).start();
+            new Thread(algoTask).start();
         });
     }
 
+    public void cancelAlgoTask() {
+        algoTask.cancel();
+        done_classification(); //CHECK IF CLUSTERING HERE
+    }
+    
     private void setTitlePaneActions() {
         chooseAlgoType.expandedPaneProperty().addListener((observable, oldValue, newValue) -> {
             runButton.setVisible(newValue != null);
