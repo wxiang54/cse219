@@ -26,14 +26,17 @@ public abstract class Classifier implements Algorithm {
         return output;
     }
 
+    @Override
     public void subscribe(AppUI ui) {
         observer = ui;
     }
 
+    @Override
     public void unsubscribe(AppUI ui) {
         observer = null;
     }
 
+    @Override
     public void publish() {
         if (observer != null) {
             Platform.runLater(() -> {
@@ -47,6 +50,7 @@ public abstract class Classifier implements Algorithm {
         }
     }
     
+    @Override
     public void done() {
         if (observer != null) {
             Platform.runLater(() -> {

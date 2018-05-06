@@ -1,3 +1,4 @@
+package algorithms.clustering;
 
 import algorithms.Clusterer;
 import dataprocessors.DataSet;
@@ -34,8 +35,7 @@ public class KMeansClusterer extends Clusterer {
         this.continuousRun = tocontinue; //permanent version
     }
 
-    @Override
-    public String getName() {
+    public static String getName() {
         return "K-Means Clusterer";
     }
     

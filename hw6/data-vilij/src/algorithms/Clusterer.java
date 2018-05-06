@@ -39,14 +39,17 @@ public abstract class Clusterer implements Algorithm {
 
     //randomly assign one of the labels {1, 2, ..., n} to each instance
 
+    @Override
     public void subscribe(AppUI ui) {
         observer = ui;
     }
 
+    @Override
     public void unsubscribe(AppUI ui) {
         observer = null;
     }
 
+    @Override
     public void publish() {
         if (observer != null) {
             Platform.runLater(() -> {
@@ -55,6 +58,7 @@ public abstract class Clusterer implements Algorithm {
         }
     }
 
+    @Override
     public void done() {
         if (observer != null) {
             Platform.runLater(() -> {

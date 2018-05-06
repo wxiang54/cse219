@@ -3,6 +3,7 @@ package ui;
 import actions.AppActions;
 import algorithms.Algorithm;
 import algorithms.Classifier;
+import algorithms.Clusterer;
 import algorithms.classification.RandomClassifier;
 import algorithms.clustering.RandomClusterer;
 import dataprocessors.AppData;
@@ -27,7 +28,10 @@ import vilij.templates.UITemplate;
 
 import static java.io.File.separator;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -86,6 +90,8 @@ public final class AppUI extends UITemplate {
     private Accordion chooseAlgoType;           // to add the event listener
     private TitledPane classification, clustering; //to disable classification in the future
     private ToggleGroup toggle_classification, toggle_clustering;
+    private ArrayList<Class<Classifier>> algos_classification;  // all class. algos
+    private ArrayList<Class<Clusterer>> algos_clustering;      // all clust. algos
 
     private boolean classification_disabled;    // short-term storage of classification titled pane disable
     private Task algoTask;                      // main task for running algorithm
@@ -170,6 +176,8 @@ public final class AppUI extends UITemplate {
 
     public void registerAlgos() {
         PropertyManager manager = applicationTemplate.manager;
+        algos_classification = new ArrayList<>();
+        algos_clustering = new ArrayList<>();
         String dataPath_classification = String.join(separator,
                 manager.getPropertyValue(AppPropertyTypes.DATA_SRC_PREFIX.name()),
                 manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
@@ -182,30 +190,33 @@ public final class AppUI extends UITemplate {
         File dir_clustering = new File(dataPath_clustering);
         File[] files_classification = dir_classification.listFiles();
         File[] files_clustering = dir_clustering.listFiles();
-        
+
         System.out.println("registering classification algos");
         for (File f : files_classification) {
-            System.out.println("\t" + f.getName().split("\\.")[0]);
+            System.out.println("\t* " + f.getName().split("\\.")[0]);
+            String algoPath = String.join(".",
+                    manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
+                    manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGO_DIR.name()),
+                    f.getName().split("\\.")[0]);
             try {
-                String algoPath = String.join(".",
-                        manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
-                        manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGO_DIR.name()),
-                        f.getName().split("\\.")[0]);
-                Class.forName(algoPath);
+                algos_classification.add((Class<Classifier>) Class.forName(algoPath));
+                System.out.println("\t\t* Added " + algoPath);
             } catch (ClassNotFoundException ex) {
-                //hmmmmmmmm...
+                System.out.println("\t\t* Class not found: " + algoPath);
             }
         }
         System.out.println("registering clustering algos");
         for (File f : files_clustering) {
-            System.out.println("\t" + f.getName().split("\\.")[0]);
+            System.out.println("\t* " + f.getName().split("\\.")[0]);
+            String algoPath = String.join(".",
+                    manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
+                    manager.getPropertyValue(AppPropertyTypes.CLUSTERING_ALGO_DIR.name()),
+                    f.getName().split("\\.")[0]);
             try {
-                String algoPath = String.join(".",
-                        manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
-                        manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGO_DIR.name()),
-                        f.getName().split("\\.")[0]);
-                Class.forName(algoPath);
+                algos_clustering.add((Class<Clusterer>) Class.forName(algoPath));
+                System.out.println("\t\t* Added " + algoPath);
             } catch (ClassNotFoundException ex) {
+                System.out.println("\t\t* Class not found: " + algoPath);
             }
         }
     }
@@ -368,13 +379,30 @@ public final class AppUI extends UITemplate {
         chooseAlgoType = new Accordion();
 
         //classification algos
-        String[] classification_algos = new String[2];//manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGOS.name()).split(",");
-        //{"Algorithm A", "Algorithm B", "Algorithm C"};
+        String[] names_classification = new String[algos_classification.size()];
+        System.out.println("parsing classification names");
+        for (int i = 0; i < names_classification.length; i++) {
+            try {
+                String name;
+                Method m = algos_classification.get(i).getMethod("getName");
+                name = (String) (m.invoke(null));
+                names_classification[i] = name;
+                System.out.println("\t* " + name);
+            } catch (IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
+                System.out.println("\t* " + ex.getClass().getSimpleName()
+                        + ": " + algos_classification.get(i).getSimpleName());
+            }
+        }
         GridPane gridpane_classification = new GridPane();
-        gridpane_classification.getColumnConstraints().add(new ColumnConstraints(150));
+
+        gridpane_classification.getColumnConstraints()
+                .add(new ColumnConstraints(150));
         toggle_classification = new ToggleGroup();
-        for (int i = 0; i < classification_algos.length; i++) {
-            String algoName = classification_algos[i];
+        for (int i = 0;
+                i < names_classification.length;
+                i++) {
+            String algoName = names_classification[i];
             RadioButton b = new RadioButton(algoName);
             b.setOnAction(e -> {
                 runButton.setDisable(!algorithms.containsKey(algoName));
@@ -408,14 +436,32 @@ public final class AppUI extends UITemplate {
         }
 
         //clustering algos
-        String[] clustering_algos = new String[2]; //manager.getPropertyValue(AppPropertyTypes.CLUSTERING_ALGOS.name()).split(",");
-        //{"Algorithm D", "Algorithm E", "Algorithm F"};
+        String[] names_clustering = new String[algos_clustering.size()];
+
+        System.out.println("parsing clustering names");
+        for (int i = 0; i < names_clustering.length; i++) {
+            try {
+                String name;
+                Method m = algos_clustering.get(i).getMethod("getName");
+                name = (String) (m.invoke(null));
+                names_clustering[i] = name;
+                System.out.println("\t* " + name);
+            } catch (IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
+                System.out.println("\t* " + ex.getClass().getSimpleName()
+                        + ": " + algos_clustering.get(i).getSimpleName());
+            }
+        }
         GridPane gridpane_clustering = new GridPane();
-        gridpane_clustering.getColumnConstraints().add(new ColumnConstraints(150));
+
+        gridpane_clustering.getColumnConstraints()
+                .add(new ColumnConstraints(150));
         toggle_clustering = new ToggleGroup();
-        for (int i = 0; i < clustering_algos.length; i++) {
-            String algoName = clustering_algos[i];
-            RadioButton b = new RadioButton(clustering_algos[i]);
+        for (int i = 0;
+                i < names_clustering.length;
+                i++) {
+            String algoName = names_clustering[i];
+            RadioButton b = new RadioButton(names_clustering[i]);
             b.setToggleGroup(toggle_clustering);
             b.setOnAction(e -> {
                 runButton.setDisable(!algorithms.containsKey(algoName));
@@ -456,34 +502,51 @@ public final class AppUI extends UITemplate {
         clustering = new TitledPane(
                 manager.getPropertyValue(AppPropertyTypes.CLUSTERING_TITLE.name()),
                 gridpane_clustering);
-        classification.setOnMouseClicked(e -> {
+
+        classification.setOnMouseClicked(e
+                -> {
             runButton.setDisable(!algorithms.containsKey(
                     ((RadioButton) toggle_classification.getSelectedToggle()).getText()));
-        });
-        clustering.setOnMouseClicked(e -> {
+        }
+        );
+        clustering.setOnMouseClicked(e
+                -> {
             runButton.setDisable(!algorithms.containsKey(
                     ((RadioButton) toggle_clustering.getSelectedToggle()).getText()));
-        });
-        chooseAlgoType.getPanes().addAll(classification, clustering);
+        }
+        );
+        chooseAlgoType.getPanes()
+                .addAll(classification, clustering);
 
         HBox leftButtons = new HBox(15);
-        leftButtons.getChildren().addAll(runButton, nextButton);
-        algochooser.getChildren().addAll(algotypeText, chooseAlgoType, leftButtons);
 
-        leftPanel.getChildren().addAll(leftPanelTitle, textArea, toggleDoneEditing,
-                metadataText, algochooser);
+        leftButtons.getChildren()
+                .addAll(runButton, nextButton);
+        algochooser.getChildren()
+                .addAll(algotypeText, chooseAlgoType, leftButtons);
+
+        leftPanel.getChildren()
+                .addAll(leftPanelTitle, textArea, toggleDoneEditing,
+                        metadataText, algochooser);
 
         VBox rightPanel = new VBox(10);
         StackPane chartPane = new StackPane(chart);
-        chartPane.setMaxSize(windowWidth * 0.69, windowHeight * 0.69);
-        chartPane.setMinSize(windowWidth * 0.69, windowHeight * 0.69);
+
+        chartPane.setMaxSize(windowWidth
+                * 0.69, windowHeight * 0.69);
+        chartPane.setMinSize(windowWidth
+                * 0.69, windowHeight * 0.69);
         StackPane.setAlignment(chartPane, Pos.CENTER);
-        rightPanel.getChildren().addAll(chartPane, chartMsg);
+
+        rightPanel.getChildren()
+                .addAll(chartPane, chartMsg);
 
         workspace = new HBox(leftPanel, rightPanel);
+
         HBox.setHgrow(workspace, Priority.ALWAYS);
 
-        appPane.getChildren().add(workspace);
+        appPane.getChildren()
+                .add(workspace);
         VBox.setVgrow(appPane, Priority.ALWAYS);
 
         leftPanel.setVisible(LEFTPANE_VISIBLE);
@@ -654,7 +717,7 @@ public final class AppUI extends UITemplate {
                 algoName = ((RadioButton) toggle_classification.getSelectedToggle()).getText();
                 algo = algorithms.get(algoName);
                 nextButton.setVisible(!algo.tocontinue()); //visible when non-cont
-                ((Classifier) algo).subscribe(this);
+                algo.subscribe(this);
                 nextButton.setOnAction(e -> {
                     //scrnshotButton.setDisable(true);
                     algo.wake();

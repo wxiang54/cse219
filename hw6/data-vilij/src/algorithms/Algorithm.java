@@ -1,5 +1,7 @@
 package algorithms;
 
+import ui.AppUI;
+
 /**
  * This interface provides a way to run an algorithm
  * on a thread as a {@link java.lang.Runnable} object.
@@ -15,6 +17,9 @@ public interface Algorithm extends Runnable {
     boolean tocontinue();
     
     void wake();
-
-    String getName();
+    void subscribe(AppUI ui);
+    void unsubscribe(AppUI ui);
+    void publish();
+    void done();
+    
 }

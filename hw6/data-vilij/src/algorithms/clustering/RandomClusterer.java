@@ -25,8 +25,7 @@ public class RandomClusterer extends Clusterer {
     // currently, this value does not change after instantiation
     private final AtomicBoolean tocontinue;
 
-    @Override
-    public String getName() {
+    public static String getName() {
         return "Random Clusterer";
     }
     
