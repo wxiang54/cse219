@@ -29,6 +29,11 @@ public class RandomClassifier extends Classifier {
     private final AtomicBoolean tocontinue;
 
     @Override
+    public String getName() {
+        return "Random Classifier";
+    }
+    
+    @Override
     public int getMaxIterations() {
         return maxIterations;
     }

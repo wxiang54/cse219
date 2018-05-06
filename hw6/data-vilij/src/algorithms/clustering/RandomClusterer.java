@@ -20,11 +20,16 @@ public class RandomClusterer extends Clusterer {
 
     private final int maxIterations;
     private final int updateInterval;
-    private final int numClusters;
+    private final boolean continuousRun;
 
     // currently, this value does not change after instantiation
     private final AtomicBoolean tocontinue;
 
+    @Override
+    public String getName() {
+        return "Random Clusterer";
+    }
+    
     @Override
     public int getMaxIterations() {
         return maxIterations;
@@ -41,12 +46,9 @@ public class RandomClusterer extends Clusterer {
     }
     
     @Override
-    public void wake() {
-        
-    }
-    
-    public int getNumClusters() {
-        return numClusters;
+    public synchronized void wake() {
+        tocontinue.set(true);
+        notifyAll();
     }
 
     public RandomClusterer(DataSet dataset,
@@ -54,11 +56,12 @@ public class RandomClusterer extends Clusterer {
             int updateInterval,
             int numClusters,
             boolean tocontinue) {
+        super(numClusters);
         this.dataset = dataset;
         this.maxIterations = maxIterations;
         this.updateInterval = updateInterval;
-        this.numClusters = numClusters;
-        this.tocontinue = new AtomicBoolean(tocontinue);
+        this.tocontinue = new AtomicBoolean(tocontinue); //becomes lock
+        this.continuousRun = tocontinue; //permanent version
     }
 
     @Override
@@ -87,11 +90,13 @@ public class RandomClusterer extends Clusterer {
         }
     }
 
+    /*
     // for internal viewing only
     protected void flush() {
         System.out.printf("%d\t%d\t%d%n", output.get(0), output.get(1), output.get(2));
     }
-
+    */
+    
     /**
      * A placeholder main method to just make sure this code runs smoothly
      */

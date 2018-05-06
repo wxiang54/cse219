@@ -5,8 +5,13 @@ functionality within the main workspace. -->
 <properties>
     <property_list>
         <!-- RESOURCE FILES AND FOLDERS -->
+        <property name="DATA_RESOURCE_PREFIX" value="data-vilij/resources"/>
+        <property name="DATA_SRC_PREFIX" value="data-vilij/src"/>
         <property name="DATA_RESOURCE_PATH" value="data"/>
         <property name="APP_CSS_RESOURCE_FILENAME" value="data-vilij.css"/>
+        <property name="ALGO_PREFIX" value="algorithms"/>
+        <property name="CLASSIFICATION_ALGO_DIR" value="classification"/>
+        <property name="CLUSTERING_ALGO_DIR" value="clustering"/>
         
         <!-- USER INTERFACE ICON FILES -->
         <property name="SCREENSHOT_ICON" value="screenshot.png"/>
@@ -46,7 +51,6 @@ functionality within the main workspace. -->
         <property name="OUTOFBOUNDS_MSG" value="Line is out of bounds!"/>
 
         <!-- APPLICATION-SPECIFIC PARAMETERS -->
-        <property name="DATA_RESOURCE_PREFIX" value="data-vilij/resources"/>
         <property name="DATA_FILE_EXT" value=".tsd"/>
         <property name="DATA_FILE_EXT_DESC" value="Tab-Separated Data File"/>
         <property name="IMG_FILE_EXT" value=".png"/>
@@ -71,8 +75,6 @@ functionality within the main workspace. -->
         <property name="CLASSIFICATION_TITLE" value="Classification"/>
         <property name="CLASSIFICATION_LINE_NAME" value="Classification Line"/>
         <property name="CLUSTERING_TITLE" value="Clustering"/>
-        <property name="CLASSIFICATION_ALGOS" value="Random Classifier,Algorithm B,Algorithm C"/>
-        <property name="CLUSTERING_ALGOS" value="Algorithm D,Algorithm E,Algorithm F"/>
 
     </property_list>
     <property_options_list/>

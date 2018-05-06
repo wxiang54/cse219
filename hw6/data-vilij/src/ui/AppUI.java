@@ -7,6 +7,7 @@ import algorithms.classification.RandomClassifier;
 import algorithms.clustering.RandomClusterer;
 import dataprocessors.AppData;
 import dataprocessors.DataSet;
+import java.io.File;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.NumberAxis;
@@ -29,7 +30,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import javafx.application.Platform;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
@@ -45,7 +47,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import static settings.AppPropertyTypes.APP_CSS_RESOURCE_FILENAME;
-import vilij.components.DataComponent;
 import vilij.components.Dialog;
 import vilij.components.ErrorDialog;
 import static vilij.settings.PropertyTypes.CSS_RESOURCE_PATH;
@@ -73,7 +74,7 @@ public final class AppUI extends UITemplate {
     private String appCSSPath;                  // path to data-vilij css file
     private String[] remainingData;             // when > 10 lines, rest of data should be stored here
     private int remainingDataInd;               // keeps track of where you are in remainingData
-    private boolean leftPanelShown;             // self-evident
+    //private boolean leftPanelShown;             // self-evident
     private VBox leftPanel;                     // to add TextBox after New/Load button pressed
     //private HBox processButtonsBox;           // to add after New/Load button pressed
     private Button runButton;                   // workspace button to run algorithm
@@ -88,6 +89,7 @@ public final class AppUI extends UITemplate {
 
     private boolean classification_disabled;    // short-term storage of classification titled pane disable
     private Task algoTask;                      // main task for running algorithm
+    private DataSet dataset;                    // dataset to be passed to algos
 
     //DIALOGS
     protected final ClassificationConfig config_classification = ClassificationConfig.getDialog();
@@ -104,6 +106,10 @@ public final class AppUI extends UITemplate {
 
     public LineChart<Number, Number> getChart() {
         return chart;
+    }
+
+    public void setDataSet(DataSet ds) {
+        dataset = ds;
     }
 
     protected void configsAudit(Stage primaryStage) {
@@ -157,8 +163,51 @@ public final class AppUI extends UITemplate {
     @Override
     public void initialize() {
         configsAudit(primaryStage);
+        registerAlgos();
         layout();
         setWorkspaceActions();
+    }
+
+    public void registerAlgos() {
+        PropertyManager manager = applicationTemplate.manager;
+        String dataPath_classification = String.join(separator,
+                manager.getPropertyValue(AppPropertyTypes.DATA_SRC_PREFIX.name()),
+                manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
+                manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGO_DIR.name()));
+        String dataPath_clustering = String.join(separator,
+                manager.getPropertyValue(AppPropertyTypes.DATA_SRC_PREFIX.name()),
+                manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
+                manager.getPropertyValue(AppPropertyTypes.CLUSTERING_ALGO_DIR.name()));
+        File dir_classification = new File(dataPath_classification);
+        File dir_clustering = new File(dataPath_clustering);
+        File[] files_classification = dir_classification.listFiles();
+        File[] files_clustering = dir_clustering.listFiles();
+        
+        System.out.println("registering classification algos");
+        for (File f : files_classification) {
+            System.out.println("\t" + f.getName().split("\\.")[0]);
+            try {
+                String algoPath = String.join(".",
+                        manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
+                        manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGO_DIR.name()),
+                        f.getName().split("\\.")[0]);
+                Class.forName(algoPath);
+            } catch (ClassNotFoundException ex) {
+                //hmmmmmmmm...
+            }
+        }
+        System.out.println("registering clustering algos");
+        for (File f : files_clustering) {
+            System.out.println("\t" + f.getName().split("\\.")[0]);
+            try {
+                String algoPath = String.join(".",
+                        manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
+                        manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGO_DIR.name()),
+                        f.getName().split("\\.")[0]);
+                Class.forName(algoPath);
+            } catch (ClassNotFoundException ex) {
+            }
+        }
     }
 
     @Override
@@ -319,7 +368,7 @@ public final class AppUI extends UITemplate {
         chooseAlgoType = new Accordion();
 
         //classification algos
-        String[] classification_algos = manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGOS.name()).split(",");
+        String[] classification_algos = new String[2];//manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGOS.name()).split(",");
         //{"Algorithm A", "Algorithm B", "Algorithm C"};
         GridPane gridpane_classification = new GridPane();
         gridpane_classification.getColumnConstraints().add(new ColumnConstraints(150));
@@ -347,7 +396,7 @@ public final class AppUI extends UITemplate {
                         && config_classification.getUpdateInterval() != null
                         && config_classification.getContinuousRun() != null) {
                     algorithms.put(algoName,
-                            new RandomClassifier(new DataSet(), //CHANGE THIS IN FUTURE
+                            new RandomClassifier(dataset, //CHANGE THIS IN FUTURE
                                     config_classification.getMaxIterations(),
                                     config_classification.getUpdateInterval(),
                                     config_classification.getContinuousRun()));
@@ -359,7 +408,7 @@ public final class AppUI extends UITemplate {
         }
 
         //clustering algos
-        String[] clustering_algos = manager.getPropertyValue(AppPropertyTypes.CLUSTERING_ALGOS.name()).split(",");
+        String[] clustering_algos = new String[2]; //manager.getPropertyValue(AppPropertyTypes.CLUSTERING_ALGOS.name()).split(",");
         //{"Algorithm D", "Algorithm E", "Algorithm F"};
         GridPane gridpane_clustering = new GridPane();
         gridpane_clustering.getColumnConstraints().add(new ColumnConstraints(150));
@@ -389,7 +438,7 @@ public final class AppUI extends UITemplate {
                         && config_clustering.getNumClusters() != null
                         && config_clustering.getContinuousRun() != null) {
                     algorithms.put(algoName,
-                            new RandomClusterer(new DataSet(),
+                            new RandomClusterer(dataset,
                                     config_clustering.getMaxIterations(),
                                     config_clustering.getUpdateInterval(),
                                     config_clustering.getNumClusters(),
@@ -548,6 +597,22 @@ public final class AppUI extends UITemplate {
         System.out.println("done!");
     }
 
+    public void datachanged_clustering() {
+
+    }
+
+    //IF THIS WORKS OUT COMBINE DONE_CLASSIFICATION AND DONE_CLUSTERING CUZ ITS REDUNDANT
+    public void done_clustering() {
+        runButton.setDisable(false);
+        scrnshotButton.setDisable(false);
+        nextButton.setVisible(false);
+        toggleDoneEditing.setDisable(false);
+        classification.setDisable(classification_disabled);
+        clustering.setDisable(false);
+        ((AppActions) applicationTemplate.getActionComponent()).setIsAlgoRunningProperty(false);
+        System.out.println("done!");
+    }
+
     private void textToData() {
         if (hasNewText) {
             AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
@@ -614,7 +679,6 @@ public final class AppUI extends UITemplate {
                 protected Object call() throws Exception {
                     if (!isCancelled()) {
                         algo.run();
-                        //TODO: CHANGE TO WORK FOR CLUSTERING ALSO
                     }
                     return null;
                 }
@@ -626,8 +690,9 @@ public final class AppUI extends UITemplate {
     public void cancelAlgoTask() {
         algoTask.cancel();
         done_classification(); //CHECK IF CLUSTERING HERE
+        //or done_clustering();
     }
-    
+
     private void setTitlePaneActions() {
         chooseAlgoType.expandedPaneProperty().addListener((observable, oldValue, newValue) -> {
             runButton.setVisible(newValue != null);

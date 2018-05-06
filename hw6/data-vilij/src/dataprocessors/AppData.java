@@ -124,7 +124,9 @@ public class AppData implements DataComponent {
             }
             clear();
             processor.processString(dataString); //stops here if invalid data
-            ((AppUI) applicationTemplate.getUIComponent()).updateTextArea(dataString);
+            AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+            ui.updateTextArea(dataString);
+            ui.setDataSet(DataSet.fromTSDFile(dataFilePath));
             updateMetadata(dataFilePath.toString());
             
         } catch (Exception e) {
@@ -138,6 +140,8 @@ public class AppData implements DataComponent {
         PropertyManager manager = applicationTemplate.manager;
         try {
             processor.processString(dataString);
+            AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+            ui.setDataSet(DataSet.fromString(dataString));
         } catch (Exception e) {
             //System.out.println(e);
             showLoadErrorDialog(e.getMessage(),

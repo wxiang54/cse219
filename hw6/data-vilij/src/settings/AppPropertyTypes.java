@@ -10,8 +10,13 @@ package settings;
 public enum AppPropertyTypes {
 
     /* resource files and folders */
+    DATA_RESOURCE_PREFIX,
+    DATA_SRC_PREFIX,
     DATA_RESOURCE_PATH,
     APP_CSS_RESOURCE_FILENAME,
+    ALGO_PREFIX,
+    CLASSIFICATION_ALGO_DIR,
+    CLUSTERING_ALGO_DIR,
 
     /* user interface icon file names */
     SCREENSHOT_ICON,
@@ -46,7 +51,6 @@ public enum AppPropertyTypes {
     OUTOFBOUNDS_MSG,
     
     /* application-specific parameters */
-    DATA_RESOURCE_PREFIX,
     DATA_FILE_EXT,
     DATA_FILE_EXT_DESC,
     IMG_FILE_EXT,
@@ -71,6 +75,4 @@ public enum AppPropertyTypes {
     CLASSIFICATION_TITLE,
     CLASSIFICATION_LINE_NAME,
     CLUSTERING_TITLE,
-    CLASSIFICATION_ALGOS,
-    CLUSTERING_ALGOS
 }

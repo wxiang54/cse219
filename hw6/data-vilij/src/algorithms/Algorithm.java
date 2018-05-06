@@ -16,4 +16,5 @@ public interface Algorithm extends Runnable {
     
     void wake();
 
+    String getName();
 }

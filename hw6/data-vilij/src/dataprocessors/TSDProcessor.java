@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-import settings.AppPropertyTypes;
 import vilij.propertymanager.PropertyManager;
 
 /**
@@ -104,10 +103,10 @@ public final class TSDProcessor {
                             Point2D point = new Point2D(Double.parseDouble(pair[0]), Double.parseDouble(pair[1]));
                             dataLabels.put(name, label);
                             dataPoints.put(name, point);
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             throw new InvalidFormattingException(curNumInstances.get());
                         }
-                    } catch (Exception e) {
+                    } catch (DuplicateNameException | InvalidDataNameException | InvalidFormattingException e) {
                         errorMessage.setLength(0);
                         errorMessage.append(e.getClass().getSimpleName()).append(" on ").append(e.getMessage());
                         hadAnError.set(true);
