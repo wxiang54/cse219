@@ -93,8 +93,13 @@ public class AppData implements DataComponent {
             numInstances = processor.getNumInstances();
             numLabels = processor.getLabelNames().size();
             String labels = "";
+            int ctr = 0;
             for (String s : processor.getLabelNames()) {
                 labels += "\n\t- " + s;
+                if (++ctr >= manager.getPropertyValueAsInt(AppPropertyTypes.METADATA_MAX_LINES.name())) {
+                    labels += "\n\t...";
+                    break;
+                }
             }
             metadata = String.format(metadataFormat, numInstances, numLabels, src, labels);
             AppUI ui = (AppUI)applicationTemplate.getUIComponent();
@@ -155,7 +160,7 @@ public class AppData implements DataComponent {
             processor.processDataSet(dataset);
             //AppUI ui = (AppUI) applicationTemplate.getUIComponent();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw e;
             //do nothing;
         }
     }

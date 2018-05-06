@@ -1,6 +1,7 @@
 package algorithms.clustering;
 
 import algorithms.Clusterer;
+import algorithms.classification.RandomClassifier;
 import dataprocessors.DataSet;
 import javafx.geometry.Point2D;
 
@@ -10,6 +11,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -18,27 +21,26 @@ import java.util.stream.IntStream;
  */
 public class KMeansClusterer extends Clusterer {
 
-    private DataSet dataset;
     private List<Point2D> centroids;
 
     private final int maxIterations;
     private final int updateInterval;
-    private final AtomicBoolean tocontinue;
     private final boolean continuousRun;
+    private final AtomicBoolean tocontinue;
 
     public KMeansClusterer(DataSet dataset, int maxIterations, int updateInterval, int numClusters, boolean tocontinue) {
         super(numClusters);
         this.dataset = dataset;
         this.maxIterations = maxIterations;
         this.updateInterval = updateInterval;
-        this.tocontinue = new AtomicBoolean(false);
+        this.tocontinue = new AtomicBoolean(tocontinue);
         this.continuousRun = tocontinue; //permanent version
     }
 
     public static String getName() {
         return "K-Means Clusterer";
     }
-    
+
     @Override
     public int getMaxIterations() {
         return maxIterations;
@@ -55,19 +57,46 @@ public class KMeansClusterer extends Clusterer {
     }
 
     @Override
-    public synchronized void run() {
-        initializeCentroids();
-        int iteration = 0;
-        while (iteration++ < maxIterations & tocontinue.get()) {
-            assignLabels();
-            recomputeCentroids();
-        }
-    }
-
-    @Override
     public synchronized void wake() {
         tocontinue.set(true);
         notifyAll();
+    }
+
+    @Override
+    public synchronized void run() {
+        initializeCentroids();
+        int iteration = 0;
+        while (iteration++ < maxIterations) {
+            assignLabels();
+            recomputeCentroids();
+            
+            if (iteration % updateInterval == 0) {
+                System.out.printf("Iteration number %d\n", iteration);
+                //System.out.println("labels: " + Arrays.asList(dataset.getLabels()));
+                //System.out.println("points: " + Arrays.asList(dataset.getLocations()));
+                publish();
+                if (continuousRun) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(RandomClassifier.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    tocontinue.set(false);
+                    //stall until tocontinue() changed back to true
+                    while (!tocontinue()) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            System.out.println("task interrupted...");
+                            //do nothing
+                        }
+                    }
+                }
+            }
+        }
+        tocontinue.set(continuousRun);
+        done();
     }
 
     private void initializeCentroids() {

@@ -327,7 +327,7 @@ public final class AppUI extends UITemplate {
         //metadataText.setWrappingWidth(Double.parseDouble(manager.getPropertyValue(AppPropertyTypes.METADATA_WRAPWIDTH.name())));
         //chartMsg.setVisible(false);
 
-        leftPanel = new VBox(14);
+        leftPanel = new VBox(8);
         leftPanel.setAlignment(Pos.TOP_CENTER);
         leftPanel.setPadding(new Insets(10));
         VBox.setVgrow(leftPanel, Priority.ALWAYS);

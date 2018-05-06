@@ -27,6 +27,19 @@ public class RandomClusterer extends Clusterer {
     // currently, this value does not change after instantiation
     private final AtomicBoolean tocontinue;
 
+    public RandomClusterer(DataSet dataset,
+            int maxIterations,
+            int updateInterval,
+            int numClusters,
+            boolean tocontinue) {
+        super(numClusters);
+        this.dataset = dataset;
+        this.maxIterations = maxIterations;
+        this.updateInterval = updateInterval;
+        this.tocontinue = new AtomicBoolean(tocontinue); //becomes lock
+        this.continuousRun = tocontinue; //permanent version
+    }
+    
     public static String getName() {
         return "Random Clusterer";
     }
@@ -51,33 +64,20 @@ public class RandomClusterer extends Clusterer {
         tocontinue.set(true);
         notifyAll();
     }
-
-    public RandomClusterer(DataSet dataset,
-            int maxIterations,
-            int updateInterval,
-            int numClusters,
-            boolean tocontinue) {
-        super(numClusters);
-        this.dataset = dataset;
-        this.maxIterations = maxIterations;
-        this.updateInterval = updateInterval;
-        this.tocontinue = new AtomicBoolean(tocontinue); //becomes lock
-        this.continuousRun = tocontinue; //permanent version
-    }
-
+    
     @Override
     public synchronized void run() {
         for (int i = 1; i <= maxIterations; i++) {
             dataset.getLocations().forEach((instanceName, location) -> {
                 dataset.getLabels().put(instanceName, Integer.toString(RAND.nextInt(numClusters)));
             });
-            /*
+            
             if (i >= maxIterations || (i > maxIterations * .6 && RAND.nextDouble() < 0.05)) {
                 System.out.printf("Iteration number %d\n", i);
                 publish();
                 break; //HANDLE THIS
             }
-             */
+            
             if (i % updateInterval == 0) {
                 System.out.printf("Iteration number %d\n", i);
                 //System.out.println("labels: " + Arrays.asList(dataset.getLabels()));
@@ -102,7 +102,6 @@ public class RandomClusterer extends Clusterer {
                     }
                 }
             }
-
         }
         tocontinue.set(continuousRun);
         done();
