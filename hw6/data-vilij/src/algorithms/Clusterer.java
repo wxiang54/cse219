@@ -23,7 +23,12 @@ public abstract class Clusterer implements Algorithm {
     //protected List<Integer> output;
     protected final int numClusters;
     protected AppUI observer;
+    protected DataSet dataset;
 
+    public DataSet getDataSet() {
+        return dataset;
+    }
+    
     public int getNumClusters() {
         return numClusters;
     }
@@ -53,7 +58,7 @@ public abstract class Clusterer implements Algorithm {
     public void publish() {
         if (observer != null) {
             Platform.runLater(() -> {
-                observer.datachanged_clustering();
+                observer.datachanged_clustering(dataset);
             });
         }
     }

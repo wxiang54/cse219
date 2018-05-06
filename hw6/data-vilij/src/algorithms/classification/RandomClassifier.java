@@ -79,8 +79,6 @@ public class RandomClassifier extends Classifier {
             // this is the real output of the classifier
             output = Arrays.asList(xCoefficient, yCoefficient, constant);
             
-            // everything below is just for internal viewing of how the output is changing
-            // in the final project, such changes will be dynamically visible in the UI
             if (i >= maxIterations || (i > maxIterations * .6 && RAND.nextDouble() < 0.05)) {
                 System.out.printf("Iteration number %d: ", i);
                 flush();

@@ -73,6 +73,15 @@ public final class TSDProcessor {
         dataPoints = new HashMap<>();
     }
 
+    public void processDataSet(DataSet dataset) {
+        dataLabels = new HashMap<>(dataset.getLabels());
+        dataPoints = new HashMap<>(dataset.getLocations());
+        /*
+        System.out.println("labels: " + Arrays.asList(dataLabels));
+        System.out.println("points: " + Arrays.asList(dataPoints));
+        */
+    }
+    
     /**
      * Processes the data and populated two {@link Map} objects with the data.
      *

@@ -149,6 +149,16 @@ public class AppData implements DataComponent {
             throw e;
         }
     }
+    
+    public void loadData(DataSet dataset) {
+        try {
+            processor.processDataSet(dataset);
+            //AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            //do nothing;
+        }
+    }
 
     @Override
     public void saveData(Path dataFilePath) {

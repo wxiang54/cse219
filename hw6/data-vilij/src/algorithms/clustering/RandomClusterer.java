@@ -1,11 +1,15 @@
 package algorithms.clustering;
+
 import algorithms.Clusterer;
+import algorithms.classification.RandomClassifier;
 import dataprocessors.DataSet;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Ritwik Banerjee
@@ -15,8 +19,6 @@ public class RandomClusterer extends Clusterer {
     private static final Random RAND = new Random();
 
     @SuppressWarnings("FieldCanBeLocal")
-    // this mock clusterer doesn't actually use the data, but a real classifier will
-    private DataSet dataset;
 
     private final int maxIterations;
     private final int updateInterval;
@@ -28,7 +30,7 @@ public class RandomClusterer extends Clusterer {
     public static String getName() {
         return "Random Clusterer";
     }
-    
+
     @Override
     public int getMaxIterations() {
         return maxIterations;
@@ -43,7 +45,7 @@ public class RandomClusterer extends Clusterer {
     public boolean tocontinue() {
         return tocontinue.get();
     }
-    
+
     @Override
     public synchronized void wake() {
         tocontinue.set(true);
@@ -64,38 +66,48 @@ public class RandomClusterer extends Clusterer {
     }
 
     @Override
-    public void run() {
-        for (int i = 1; i <= maxIterations && tocontinue(); i++) {
+    public synchronized void run() {
+        for (int i = 1; i <= maxIterations; i++) {
+            dataset.getLocations().forEach((instanceName, location) -> {
+                dataset.getLabels().put(instanceName, Integer.toString(RAND.nextInt(numClusters)));
+            });
             /*
-            int xCoefficient = new Double(RAND.nextDouble() * 100).intValue();
-            int yCoefficient = new Double(RAND.nextDouble() * 100).intValue();
-            int constant = new Double(RAND.nextDouble() * 100).intValue();
-
-            // this is the real output of the classifier
-            output = Arrays.asList(xCoefficient, yCoefficient, constant);
-
-            // everything below is just for internal viewing of how the output is changing
-            // in the final project, such changes will be dynamically visible in the UI
+            if (i >= maxIterations || (i > maxIterations * .6 && RAND.nextDouble() < 0.05)) {
+                System.out.printf("Iteration number %d\n", i);
+                publish();
+                break; //HANDLE THIS
+            }
+             */
             if (i % updateInterval == 0) {
-                System.out.printf("Iteration number %d: ", i);
-                flush();
+                System.out.printf("Iteration number %d\n", i);
+                //System.out.println("labels: " + Arrays.asList(dataset.getLabels()));
+                //System.out.println("points: " + Arrays.asList(dataset.getLocations()));
+                publish();
+                if (continuousRun) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(RandomClassifier.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    tocontinue.set(false);
+                    //stall until tocontinue() changed back to true
+                    while (!tocontinue()) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            System.out.println("task interrupted...");
+                            //do nothing
+                        }
+                    }
+                }
             }
-            if (i > maxIterations * .6 && RAND.nextDouble() < 0.05) {
-                System.out.printf("Iteration number %d: ", i);
-                flush();
-                break;
-            }
-            */
+
         }
+        tocontinue.set(continuousRun);
+        done();
     }
 
-    /*
-    // for internal viewing only
-    protected void flush() {
-        System.out.printf("%d\t%d\t%d%n", output.get(0), output.get(1), output.get(2));
-    }
-    */
-    
     /**
      * A placeholder main method to just make sure this code runs smoothly
      */

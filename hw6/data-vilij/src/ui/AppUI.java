@@ -4,11 +4,10 @@ import actions.AppActions;
 import algorithms.Algorithm;
 import algorithms.Classifier;
 import algorithms.Clusterer;
-import algorithms.classification.RandomClassifier;
-import algorithms.clustering.RandomClusterer;
 import dataprocessors.AppData;
 import dataprocessors.DataSet;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.NumberAxis;
@@ -101,13 +100,15 @@ public final class AppUI extends UITemplate {
     protected final ClassificationConfig config_classification = ClassificationConfig.getDialog();
     protected final ClusteringConfig config_clustering = ClusteringConfig.getDialog();
 
-    private final HashMap<String, Algorithm> algorithms; //maps algo name to Algorithm
+    private final HashMap<String, Algorithm> algorithms; //maps algo name to actual running Algorithm
+    private final HashMap<String, Class<?>> algo_classes;  //maps algo name to class obj (for instantiation)
 
     public AppUI(Stage primaryStage, ApplicationTemplate applicationTemplate) {
         super(primaryStage, applicationTemplate);
         this.applicationTemplate = applicationTemplate;
         primaryScene.getStylesheets().add(appCSSPath);
         algorithms = new HashMap<>();
+        algo_classes = new HashMap<>();
     }
 
     public LineChart<Number, Number> getChart() {
@@ -387,6 +388,7 @@ public final class AppUI extends UITemplate {
                 Method m = algos_classification.get(i).getMethod("getName");
                 name = (String) (m.invoke(null));
                 names_classification[i] = name;
+                algo_classes.put(name, algos_classification.get(i));
                 System.out.println("\t* " + name);
             } catch (IllegalAccessException | IllegalArgumentException
                     | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
@@ -399,9 +401,7 @@ public final class AppUI extends UITemplate {
         gridpane_classification.getColumnConstraints()
                 .add(new ColumnConstraints(150));
         toggle_classification = new ToggleGroup();
-        for (int i = 0;
-                i < names_classification.length;
-                i++) {
+        for (int i = 0; i < names_classification.length; i++) {
             String algoName = names_classification[i];
             RadioButton b = new RadioButton(algoName);
             b.setOnAction(e -> {
@@ -415,7 +415,7 @@ public final class AppUI extends UITemplate {
             Button settings = new Button(null, new ImageView(new Image(getClass().getResourceAsStream(configIconPath))));
             settings.setOnAction(e -> {
                 if (algorithms.containsKey(algoName)) {
-                    Algorithm algo = algorithms.get(algoName);
+                    Classifier algo = (Classifier) algorithms.get(algoName);
                     config_classification.showConfig(algo.getMaxIterations(), algo.getUpdateInterval(), algo.tocontinue());
                 } else {
                     config_classification.showConfig();
@@ -423,11 +423,17 @@ public final class AppUI extends UITemplate {
                 if (config_classification.getMaxIterations() != null
                         && config_classification.getUpdateInterval() != null
                         && config_classification.getContinuousRun() != null) {
-                    algorithms.put(algoName,
-                            new RandomClassifier(dataset, //CHANGE THIS IN FUTURE
-                                    config_classification.getMaxIterations(),
-                                    config_classification.getUpdateInterval(),
-                                    config_classification.getContinuousRun()));
+                    try {
+                        Constructor ctor = algo_classes.get(algoName)
+                                .getConstructor(DataSet.class, int.class, int.class, boolean.class);
+                        algorithms.put(algoName, (Classifier) ctor.newInstance(dataset,
+                                config_classification.getMaxIterations(),
+                                config_classification.getUpdateInterval(),
+                                config_classification.getContinuousRun()));
+                    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                            | NoSuchMethodException | SecurityException ex) {
+                        System.out.println("\t* " + ex.getClass().getSimpleName() + ": " + algoName);
+                    }
                     runButton.setDisable(!algorithms.containsKey(
                             ((RadioButton) toggle_classification.getSelectedToggle()).getText()));
                 }
@@ -445,6 +451,7 @@ public final class AppUI extends UITemplate {
                 Method m = algos_clustering.get(i).getMethod("getName");
                 name = (String) (m.invoke(null));
                 names_clustering[i] = name;
+                algo_classes.put(name, algos_clustering.get(i));
                 System.out.println("\t* " + name);
             } catch (IllegalAccessException | IllegalArgumentException
                     | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
@@ -457,9 +464,7 @@ public final class AppUI extends UITemplate {
         gridpane_clustering.getColumnConstraints()
                 .add(new ColumnConstraints(150));
         toggle_clustering = new ToggleGroup();
-        for (int i = 0;
-                i < names_clustering.length;
-                i++) {
+        for (int i = 0; i < names_clustering.length; i++) {
             String algoName = names_clustering[i];
             RadioButton b = new RadioButton(names_clustering[i]);
             b.setToggleGroup(toggle_clustering);
@@ -473,7 +478,7 @@ public final class AppUI extends UITemplate {
             Button settings = new Button(null, new ImageView(new Image(getClass().getResourceAsStream(configIconPath))));
             settings.setOnAction(e -> {
                 if (algorithms.containsKey(algoName)) {
-                    RandomClusterer algo = (RandomClusterer) algorithms.get(algoName);
+                    Clusterer algo = (Clusterer) algorithms.get(algoName);
                     config_clustering.showConfig(algo.getMaxIterations(), algo.getUpdateInterval(),
                             algo.getNumClusters(), algo.tocontinue());
                 } else {
@@ -483,12 +488,19 @@ public final class AppUI extends UITemplate {
                         && config_clustering.getUpdateInterval() != null
                         && config_clustering.getNumClusters() != null
                         && config_clustering.getContinuousRun() != null) {
-                    algorithms.put(algoName,
-                            new RandomClusterer(dataset,
-                                    config_clustering.getMaxIterations(),
-                                    config_clustering.getUpdateInterval(),
-                                    config_clustering.getNumClusters(),
-                                    config_clustering.getContinuousRun()));
+                    try {
+                        Constructor ctor = algo_classes.get(algoName)
+                                .getConstructor(DataSet.class, int.class, int.class, int.class, boolean.class);
+                        //System.out.println("dataset: " + Arrays.asList(dataset.getLabels()));
+                        algorithms.put(algoName, (Clusterer) ctor.newInstance(dataset,
+                                config_clustering.getMaxIterations(),
+                                config_clustering.getUpdateInterval(),
+                                config_clustering.getNumClusters(),
+                                config_clustering.getContinuousRun()));
+                    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                            | NoSuchMethodException | SecurityException ex) {
+                        System.out.println("\t* " + ex.getClass().getSimpleName() + ": " + algoName);
+                    }
                     runButton.setDisable(!algorithms.containsKey(
                             ((RadioButton) toggle_clustering.getSelectedToggle()).getText()));
                 }
@@ -503,14 +515,12 @@ public final class AppUI extends UITemplate {
                 manager.getPropertyValue(AppPropertyTypes.CLUSTERING_TITLE.name()),
                 gridpane_clustering);
 
-        classification.setOnMouseClicked(e
-                -> {
+        classification.setOnMouseClicked(e -> {
             runButton.setDisable(!algorithms.containsKey(
                     ((RadioButton) toggle_classification.getSelectedToggle()).getText()));
         }
         );
-        clustering.setOnMouseClicked(e
-                -> {
+        clustering.setOnMouseClicked(e -> {
             runButton.setDisable(!algorithms.containsKey(
                     ((RadioButton) toggle_clustering.getSelectedToggle()).getText()));
         }
@@ -627,7 +637,7 @@ public final class AppUI extends UITemplate {
         //drawLine(0, 0, 110, 110, 20, -64, -300);
     }
 
-    public void dataChanged_classification(List<Integer> data) {
+    public synchronized void dataChanged_classification(List<Integer> data) {
         //runButton.setDisable(true);
         //scrnshotButton.setDisable(tocontinue);
         textToData();
@@ -660,8 +670,15 @@ public final class AppUI extends UITemplate {
         System.out.println("done!");
     }
 
-    public void datachanged_clustering() {
-
+    public synchronized void datachanged_clustering(DataSet ds) {
+        //update labels
+        AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
+        dataComponent.clear();
+        dataComponent.loadData(ds);
+        chart.getData().clear();
+        dataComponent.displayData();
+        setDataPointListeners();
+        
     }
 
     //IF THIS WORKS OUT COMBINE DONE_CLASSIFICATION AND DONE_CLUSTERING CUZ ITS REDUNDANT
@@ -716,12 +733,6 @@ public final class AppUI extends UITemplate {
                     manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_TITLE.name()))) {
                 algoName = ((RadioButton) toggle_classification.getSelectedToggle()).getText();
                 algo = algorithms.get(algoName);
-                nextButton.setVisible(!algo.tocontinue()); //visible when non-cont
-                algo.subscribe(this);
-                nextButton.setOnAction(e -> {
-                    //scrnshotButton.setDisable(true);
-                    algo.wake();
-                });
             } else if (chooseAlgoType.getExpandedPane().getText().equals(
                     manager.getPropertyValue(AppPropertyTypes.CLUSTERING_TITLE.name()))) {
                 algoName = ((RadioButton) toggle_clustering.getSelectedToggle()).getText();
@@ -729,6 +740,12 @@ public final class AppUI extends UITemplate {
             } else {
                 throw new IllegalStateException("wat did u pick?????");
             }
+            nextButton.setVisible(!algo.tocontinue()); //visible when non-cont
+            algo.subscribe(this);
+            nextButton.setOnAction(e -> {
+                //scrnshotButton.setDisable(true);
+                algo.wake();
+            });
 
             runButton.setDisable(true);
             scrnshotButton.setDisable(algo.tocontinue());

@@ -55,7 +55,7 @@ public class KMeansClusterer extends Clusterer {
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
         initializeCentroids();
         int iteration = 0;
         while (iteration++ < maxIterations & tocontinue.get()) {
