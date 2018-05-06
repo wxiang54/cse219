@@ -280,7 +280,13 @@ public final class AppUI extends UITemplate {
     }
 
     public void disableRunButton() {
-        runButton.setDisable(true);
+        //disable when run button was valid for class. but no longer valid
+        PropertyManager manager = applicationTemplate.manager;
+        if (chooseAlgoType.getExpandedPane().getText().equals(
+                manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_TITLE.name()))) {
+            chooseAlgoType.setExpandedPane(clustering);
+            runButton.setDisable(true);
+        }
     }
 
     public void setMetadataText(String text) {
@@ -678,7 +684,7 @@ public final class AppUI extends UITemplate {
         chart.getData().clear();
         dataComponent.displayData();
         setDataPointListeners();
-        
+
     }
 
     //IF THIS WORKS OUT COMBINE DONE_CLASSIFICATION AND DONE_CLUSTERING CUZ ITS REDUNDANT
