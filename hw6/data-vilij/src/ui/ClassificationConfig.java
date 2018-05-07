@@ -25,7 +25,6 @@ public class ClassificationConfig extends Stage implements Config {
     private TextField tf_iterations, tf_interval;
     private CheckBox cb_cont_run;
 
-
     private ClassificationConfig() {
         /* empty constructor */ }
 
@@ -57,11 +56,11 @@ public class ClassificationConfig extends Stage implements Config {
         Label label_cont_run = new Label(manager.getPropertyValue(AppPropertyTypes.CONFIG_DIALOG_CONT_RUN.name()));
         tf_iterations = new TextField();
         tf_interval = new TextField();
-        
+
         tf_iterations.setPromptText("Default: 1");
         tf_interval.setPromptText("Default: 1");
         cb_cont_run = new CheckBox();
-        
+
         gridpane.add(label_iterations, 0, 0); //column, row
         gridpane.add(label_interval, 0, 1);
         gridpane.add(label_cont_run, 0, 2);
@@ -71,24 +70,7 @@ public class ClassificationConfig extends Stage implements Config {
 
         Button confirm = new Button("Confirm");
         confirm.setOnAction(e -> {
-            try {
-                this.maxIterations = Integer.parseInt(tf_iterations.getText());
-                if (this.maxIterations < 1) {
-                    this.maxIterations = 1;
-                }
-            } catch (NumberFormatException nfe) {
-                this.maxIterations = 1;
-            }
-            try {
-                this.updateInterval = Integer.parseInt(tf_interval.getText());
-                if (this.updateInterval < 1) {
-                    this.updateInterval = 1;
-                }
-            } catch (NumberFormatException nfe) {
-                this.updateInterval = 1;
-            }
-            this.continuousRun = cb_cont_run.isSelected();
-            this.hide();
+            confirmButtonActions();
         });
 
         VBox messagePane = new VBox(configTitle, gridpane, confirm);
@@ -99,6 +81,50 @@ public class ClassificationConfig extends Stage implements Config {
         this.setScene(new Scene(messagePane));
     }
 
+    public void confirmButtonActions() {
+        try {
+            this.maxIterations = Integer.parseInt(tf_iterations.getText());
+            if (this.maxIterations < 1) {
+                this.maxIterations = 1;
+            }
+        } catch (NumberFormatException nfe) {
+            this.maxIterations = 1;
+        }
+        try {
+            this.updateInterval = Integer.parseInt(tf_interval.getText());
+            if (this.updateInterval < 1) {
+                this.updateInterval = 1;
+            }
+        } catch (NumberFormatException nfe) {
+            this.updateInterval = 1;
+        }
+        this.continuousRun = cb_cont_run.isSelected();
+        this.hide();
+    }
+
+    public static Object[] configTest(String iterations, String interval, boolean contrun) {
+        Object[] ret = new Object[3];
+        try {
+            ret[0] = Integer.parseInt(iterations);
+            if ((int)ret[0] < 1) {
+                ret[0] = 1;
+            }
+        } catch (NumberFormatException nfe) {
+            ret[0] = 1;
+        }
+        try {
+            ret[1] = Integer.parseInt(interval);
+            if ((int)ret[1] < 1) {
+                ret[1] = 1;
+            }
+        } catch (NumberFormatException fe) {
+            ret[1] = 1;
+        }
+        ret[2] = contrun;
+        return ret;
+    }
+    
+    
     @Override
     public void showConfig() {
         deleteConfigHistory();
@@ -107,7 +133,7 @@ public class ClassificationConfig extends Stage implements Config {
         cb_cont_run.setSelected(false);
         showAndWait();
     }
-    
+
     public void showConfig(int defaultMaxIter, int defaultUpdateInter, boolean defaultContRun) {
         deleteConfigHistory();
         tf_iterations.setText(String.valueOf(defaultMaxIter));

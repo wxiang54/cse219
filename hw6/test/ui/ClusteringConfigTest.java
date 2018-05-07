@@ -39,113 +39,88 @@ public class ClusteringConfigTest {
     }
 
     /**
-     * Test of getDialog method, of class ClusteringConfig.
+     * Test of configTest method, of class ClusteringConfig.
      */
     @Test
-    public void testGetDialog() {
-        System.out.println("getDialog");
-        ClusteringConfig expResult = null;
-        ClusteringConfig result = ClusteringConfig.getDialog();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of init method, of class ClusteringConfig.
-     */
-    @Test
-    public void testInit() {
-        System.out.println("init");
-        Stage owner = null;
-        ClusteringConfig instance = null;
-        instance.init(owner);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of showConfig method, of class ClusteringConfig.
-     */
-    @Test
-    public void testShowConfig_0args() {
-        System.out.println("showConfig");
-        ClusteringConfig instance = null;
-        instance.showConfig();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of showConfig method, of class ClusteringConfig.
-     */
-    @Test
-    public void testShowConfig_4args() {
-        System.out.println("showConfig");
-        int defaultMaxIter = 0;
-        int defaultUpdateInter = 0;
-        int defaultNumCluster = 0;
-        boolean defaultContRun = false;
-        ClusteringConfig instance = null;
-        instance.showConfig(defaultMaxIter, defaultUpdateInter, defaultNumCluster, defaultContRun);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getMaxIterations method, of class ClusteringConfig.
-     */
-    @Test
-    public void testGetMaxIterations() {
-        System.out.println("getMaxIterations");
-        ClusteringConfig instance = null;
-        Integer expResult = null;
-        Integer result = instance.getMaxIterations();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getUpdateInterval method, of class ClusteringConfig.
-     */
-    @Test
-    public void testGetUpdateInterval() {
-        System.out.println("getUpdateInterval");
-        ClusteringConfig instance = null;
-        Integer expResult = null;
-        Integer result = instance.getUpdateInterval();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getNumClusters method, of class ClusteringConfig.
-     */
-    @Test
-    public void testGetNumClusters() {
-        System.out.println("getNumClusters");
-        ClusteringConfig instance = null;
-        Integer expResult = null;
-        Integer result = instance.getNumClusters();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getContinuousRun method, of class ClusteringConfig.
-     */
-    @Test
-    public void testGetContinuousRun() {
-        System.out.println("getContinuousRun");
-        ClusteringConfig instance = null;
-        Boolean expResult = null;
-        Boolean result = instance.getContinuousRun();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testConfigTest() {
+        System.out.println("configTest");
+        Object[] ret = ClusteringConfig.configTest("1", "1", "2", false);
+        assertEquals(ret[0], 1);
+        assertEquals(ret[1], 1);
+        assertEquals(ret[2], 2);
+        assertEquals(ret[3], false);
     }
     
+    /**
+     * Test of configTest method, of class ClusteringConfig.
+     * Tests boundary case where max iter is negative
+     */
+    @Test
+    public void testConfigTestNegativeIter() {
+        System.out.println("configTest");
+        Object[] ret = ClusteringConfig.configTest("-1", "1", "2", false);
+        assertEquals(ret[0], 1);
+        assertEquals(ret[1], 1);
+        assertEquals(ret[2], 2);
+        assertEquals(ret[3], false);
+    }
+    
+    /**
+     * Test of configTest method, of class ClusteringConfig.
+     * Tests boundary case where interval is negative
+     */
+    @Test
+    public void testConfigTestNegativeInter() {
+        System.out.println("configTest");
+        Object[] ret = ClusteringConfig.configTest("1", "-11", "2", true);
+        assertEquals(ret[0], 1);
+        assertEquals(ret[1], 1);
+        assertEquals(ret[2], 2);
+        assertEquals(ret[3], true);
+    }
+    
+    /**
+     * Test of configTest method, of class ClusteringConfig.
+     * Tests boundary case where interval > max iter
+     * (should still work as normal)
+     */
+    @Test
+    public void testConfigTestTopKekerino() {
+        System.out.println("configTest");
+        Object[] ret = ClusteringConfig.configTest("1", "2", "2", false);
+        assertEquals(ret[0], 1);
+        assertEquals(ret[1], 2);
+        assertEquals(ret[2], 2);
+        assertEquals(ret[3], false);
+    }
+    
+    /**
+     * Test of configTest method, of class ClusteringConfig.
+     * Tests boundary case where clusters is < 2
+     * (should still work normal because it gets fixed in algo)
+     */
+    @Test
+    public void testConfigTestUnderflowClusters() {
+        System.out.println("configTest");
+        Object[] ret = ClusteringConfig.configTest("1", "2", "1", false);
+        assertEquals(ret[0], 1);
+        assertEquals(ret[1], 2);
+        assertEquals(ret[2], 1);
+        assertEquals(ret[3], false);
+    }
+    
+    /**
+     * Test of configTest method, of class ClusteringConfig.
+     * Tests boundary case where clusters is > 4
+     * (should still work normal because it gets fixed in algo)
+     */
+    @Test
+    public void testConfigTestOverflowClusters() {
+        System.out.println("configTest");
+        Object[] ret = ClusteringConfig.configTest("1", "2", "5", false);
+        assertEquals(ret[0], 1);
+        assertEquals(ret[1], 2);
+        assertEquals(ret[2], 5);
+        assertEquals(ret[3], false);
+    }
 }

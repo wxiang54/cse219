@@ -76,32 +76,7 @@ public class ClusteringConfig extends Stage implements Config {
 
         Button confirm = new Button("Confirm");
         confirm.setOnAction(e -> {
-            try {
-                this.maxIterations = Integer.parseInt(tf_iterations.getText());
-                if (this.maxIterations < 1) {
-                    this.maxIterations = 1;
-                }
-            } catch (NumberFormatException nfe) {
-                this.maxIterations = 1;
-            }
-            try {
-                this.updateInterval = Integer.parseInt(tf_interval.getText());
-                if (this.updateInterval < 1) {
-                    this.updateInterval = 1;
-                }
-            } catch (NumberFormatException nfe) {
-                this.updateInterval = 1;
-            }
-            try {
-                this.numClusters = Integer.parseInt(tf_clusters.getText());
-                if (this.numClusters < 1) {
-                    this.numClusters = 1;
-                }
-            } catch (NumberFormatException nfe) {
-                this.numClusters = 1;
-            }
-            this.continuousRun = cb_cont_run.isSelected();
-            this.hide();
+            confirmButtonActions();
         });
 
         VBox messagePane = new VBox(configTitle, gridpane, confirm);
@@ -110,6 +85,65 @@ public class ClusteringConfig extends Stage implements Config {
         messagePane.setSpacing(10);
 
         this.setScene(new Scene(messagePane));
+    }
+
+    public static Object[] configTest(String iterations, String interval, String clusters, boolean contrun) {
+        Object[] ret = new Object[4];
+        try {
+            ret[0] = Integer.parseInt(iterations);
+            if ((int)ret[0] < 1) {
+                ret[0] = 1;
+            }
+        } catch (NumberFormatException nfe) {
+            ret[0] = 1;
+        }
+        try {
+            ret[1] = Integer.parseInt(interval);
+            if ((int)ret[1] < 1) {
+                ret[1] = 1;
+            }
+        } catch (NumberFormatException fe) {
+            ret[1] = 1;
+        }
+        try {
+            ret[2] = Integer.parseInt(clusters);
+            if ((int)ret[2] < 1) {
+                ret[2] = 1;
+            }
+        } catch (NumberFormatException nfe) {
+            ret[2] = 1;
+        }
+        ret[3] = contrun;
+        return ret;
+    }
+    
+    public void confirmButtonActions() {
+        try {
+            this.maxIterations = Integer.parseInt(tf_iterations.getText());
+            if (this.maxIterations < 1) {
+                this.maxIterations = 1;
+            }
+        } catch (NumberFormatException nfe) {
+            this.maxIterations = 1;
+        }
+        try {
+            this.updateInterval = Integer.parseInt(tf_interval.getText());
+            if (this.updateInterval < 1) {
+                this.updateInterval = 1;
+            }
+        } catch (NumberFormatException nfe) {
+            this.updateInterval = 1;
+        }
+        try {
+            this.numClusters = Integer.parseInt(tf_clusters.getText());
+            if (this.numClusters < 1) {
+                this.numClusters = 1;
+            }
+        } catch (NumberFormatException nfe) {
+            this.numClusters = 1;
+        }
+        this.continuousRun = cb_cont_run.isSelected();
+        this.hide();
     }
 
     @Override
@@ -121,7 +155,7 @@ public class ClusteringConfig extends Stage implements Config {
         showAndWait();
     }
 
-    public void showConfig(int defaultMaxIter, int defaultUpdateInter, 
+    public void showConfig(int defaultMaxIter, int defaultUpdateInter,
             int defaultNumCluster, boolean defaultContRun) {
         deleteConfigHistory();
         tf_iterations.setText(String.valueOf(defaultMaxIter));
@@ -138,7 +172,7 @@ public class ClusteringConfig extends Stage implements Config {
     public Integer getUpdateInterval() {
         return updateInterval;
     }
-    
+
     public Integer getNumClusters() {
         return numClusters;
     }
