@@ -5,8 +5,6 @@
  */
 package dataprocessors;
 
-import java.util.Set;
-import javafx.scene.chart.XYChart;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
