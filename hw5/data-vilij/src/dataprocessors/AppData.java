@@ -97,10 +97,12 @@ public class AppData implements DataComponent {
                 labels += "\n\t- " + s;
             }
             metadata = String.format(metadataFormat, numInstances, numLabels, src, labels);
+            AppUI ui = (AppUI)applicationTemplate.getUIComponent();
             if (numLabels != 2) {
-                ((AppUI)applicationTemplate.getUIComponent()).setClassificationDisable(true);
+                ui.setClassificationDisable(true);
+                ui.disableRunButton();
             } else {
-                ((AppUI)applicationTemplate.getUIComponent()).setClassificationDisable(false);
+                ui.setClassificationDisable(false);
             }
         } else {
             //metadata = ""; //replace??

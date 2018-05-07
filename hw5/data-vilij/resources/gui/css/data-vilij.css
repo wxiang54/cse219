@@ -1,0 +1,78 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Mar 3, 2018, 10:26:29 PM
+    Author     : will
+*/
+
+.chart {
+    /*
+    -fx-border-color: black; 
+    -fx-border-style: solid; 
+    -fx-border-width: 4px; 
+    */
+}
+/*
+.chart-vertical-grid-lines {
+    -fx-stroke: #3278fa;
+}
+.chart-horizontal-grid-lines {
+    -fx-stroke: #3278fa;
+}
+*/
+.axis {
+    -fx-font-size: 1.4em;    
+    -fx-tick-label-fill: #914800;
+    -fx-font-family: Tahoma;
+    -fx-tick-length: 20;
+    -fx-minor-tick-length: 10;
+    -fx-stroke: transparent;
+}
+
+.axis:bottom {
+    -fx-border-color: transparent;
+}
+
+.axis:left {
+    -fx-border-color: transparent;
+}
+
+.axis-label {
+   -fx-text-fill: #462300; 
+}
+ 
+.axis-tick-mark {
+    -fx-stroke: darkgreen;
+    -fx-stroke-width: 3;
+}
+.axis-minor-tick-mark {
+    -fx-stroke: #859656;
+}
+
+.chart-plot-background {
+    -fx-border-color: black; 
+    -fx-border-style: solid; 
+    -fx-border-width: 4px;
+    -fx-border-insets: -2px;
+}
+
+.default-color0.chart-series-line { -fx-stroke-width: 0; }
+.default-color1.chart-series-line { -fx-stroke-width: 0; }
+.default-color2.chart-series-line { -fx-stroke-width: 0; }
+.default-color3.chart-series-line { -fx-stroke-width: 0; }
+.default-color4.chart-series-line { -fx-stroke-width: 0; }
+.default-color5.chart-series-line { -fx-stroke-width: 0; }
+.default-color6.chart-series-line { -fx-stroke-width: 0; }
+.default-color7.chart-series-line { -fx-stroke-width: 0; }
+
+#avg-line {
+    -fx-stroke-width: 3;
+}
+
+#avg-line-datapoint {
+    -fx-background-radius: 0.0px;
+    -fx-padding: 0.0px;
+}

@@ -93,14 +93,21 @@ public class AppData implements DataComponent {
             numInstances = processor.getNumInstances();
             numLabels = processor.getLabelNames().size();
             String labels = "";
+            int ctr = 0;
             for (String s : processor.getLabelNames()) {
                 labels += "\n\t- " + s;
+                if (++ctr >= manager.getPropertyValueAsInt(AppPropertyTypes.METADATA_MAX_LINES.name())) {
+                    labels += "\n\t...";
+                    break;
+                }
             }
             metadata = String.format(metadataFormat, numInstances, numLabels, src, labels);
+            AppUI ui = (AppUI)applicationTemplate.getUIComponent();
             if (numLabels != 2) {
-                ((AppUI)applicationTemplate.getUIComponent()).setClassificationDisable(true);
+                ui.setClassificationDisable(true);
+                ui.disableRunButton();
             } else {
-                ((AppUI)applicationTemplate.getUIComponent()).setClassificationDisable(false);
+                ui.setClassificationDisable(false);
             }
         } else {
             //metadata = ""; //replace??
@@ -122,13 +129,16 @@ public class AppData implements DataComponent {
             }
             clear();
             processor.processString(dataString); //stops here if invalid data
-            ((AppUI) applicationTemplate.getUIComponent()).updateTextArea(dataString);
+            AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+            ui.updateTextArea(dataString);
+            ui.setDataSet(DataSet.fromTSDFile(dataFilePath));
             updateMetadata(dataFilePath.toString());
             
         } catch (Exception e) {
-            //System.out.println(e);
             showLoadErrorDialog(e.getMessage(),
                     manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name()));
+            AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+            ui.disableRunButton();
         }
     }
 
@@ -136,11 +146,23 @@ public class AppData implements DataComponent {
         PropertyManager manager = applicationTemplate.manager;
         try {
             processor.processString(dataString);
+            AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+            ui.setDataSet(DataSet.fromString(dataString));
         } catch (Exception e) {
             //System.out.println(e);
             showLoadErrorDialog(e.getMessage(),
                     manager.getPropertyValue(AppPropertyTypes.TEXT_AREA.name()));
             throw e;
+        }
+    }
+    
+    public void loadData(DataSet dataset) {
+        try {
+            processor.processDataSet(dataset);
+            //AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+        } catch (Exception e) {
+            throw e;
+            //do nothing;
         }
     }
 
