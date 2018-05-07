@@ -135,9 +135,10 @@ public class AppData implements DataComponent {
             updateMetadata(dataFilePath.toString());
             
         } catch (Exception e) {
-            //System.out.println(e);
             showLoadErrorDialog(e.getMessage(),
                     manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name()));
+            AppUI ui = (AppUI) applicationTemplate.getUIComponent();
+            ui.disableRunButton();
         }
     }
 

@@ -30,12 +30,14 @@ public final class TSDProcessor {
     private int numInstances;
     //private int numLabels;
     private Set<String> labelNames;
+    
+    private Map<String, String> dataLabels;
+    private Map<String, Point2D> dataPoints;
 
     public int getNumInstances() {
         return numInstances;
     }
 
-    //public int getNumLabels()           {return numLabels;}
     public Set<String> getLabelNames() {
         return labelNames;
     }
@@ -65,8 +67,6 @@ public final class TSDProcessor {
         }
     }
 
-    private Map<String, String> dataLabels;
-    private Map<String, Point2D> dataPoints;
 
     public TSDProcessor() {
         dataLabels = new HashMap<>();
@@ -95,7 +95,7 @@ public final class TSDProcessor {
         //metadata
         AtomicInteger curNumInstances = new AtomicInteger(0);
         //AtomicInteger curNumLabels = new AtomicInteger(0);
-        Set<String> curLabelNames = new HashSet<String>();
+        Set<String> curLabelNames = new HashSet<>();
 
         Stream.of(tsdString.split("\n"))
                 .map(line -> Arrays.asList(line.split("\t")))
@@ -180,17 +180,6 @@ public final class TSDProcessor {
                 }
                 y_sum += point.getY();
             }
-            PropertyManager manager = PropertyManager.getManager();
-            /*
-            double y_avg = y_sum / dataPoints.size();
-            XYChart.Series<Number, Number> line_avg = new XYChart.Series<>();
-            line_avg.getData().addAll(new XYChart.Data<>(x_min, y_avg), new XYChart.Data<>(x_max, y_avg));
-            line_avg.setName(manager.getPropertyValue(AppPropertyTypes.AVG_LINE_NAME.name()));
-            chart.getData().add(line_avg);
-            line_avg.getNode().setId(manager.getPropertyValue(AppPropertyTypes.AVG_LINE_ID.name()));
-            line_avg.getData().get(0).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
-            line_avg.getData().get(1).getNode().setStyle("-fx-background-radius: 0.0px; -fx-padding: 0.0px;");
-             */
         }
     }
 

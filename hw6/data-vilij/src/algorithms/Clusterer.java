@@ -71,4 +71,9 @@ public abstract class Clusterer implements Algorithm {
             });
         }
     }
+    
+    @Override
+    public void setDataSet(DataSet ds) {
+        dataset = ds;
+    }
 }

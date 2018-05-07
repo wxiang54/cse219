@@ -193,31 +193,39 @@ public final class AppUI extends UITemplate {
         File[] files_clustering = dir_clustering.listFiles();
 
         System.out.println("registering classification algos");
-        for (File f : files_classification) {
-            System.out.println("\t* " + f.getName().split("\\.")[0]);
-            String algoPath = String.join(".",
-                    manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
-                    manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGO_DIR.name()),
-                    f.getName().split("\\.")[0]);
-            try {
-                algos_classification.add((Class<Classifier>) Class.forName(algoPath));
-                System.out.println("\t\t* Added " + algoPath);
-            } catch (ClassNotFoundException ex) {
-                System.out.println("\t\t* Class not found: " + algoPath);
+        if (files_classification.length > 0 && !files_classification[0].equals("")) {
+            for (File f : files_classification) {
+                System.out.println("\t* " + f.getName().split("\\.")[0]);
+                String algoPath = String.join(".",
+                        manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
+                        manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_ALGO_DIR.name()),
+                        f.getName().split("\\.")[0]);
+                try {
+                    algos_classification.add((Class<Classifier>) Class.forName(algoPath));
+                    System.out.println("\t\t* Added " + algoPath);
+                } catch (ClassNotFoundException ex) {
+                    System.out.println("\t\t* Class not found: " + algoPath);
+                }
             }
         }
         System.out.println("registering clustering algos");
-        for (File f : files_clustering) {
-            System.out.println("\t* " + f.getName().split("\\.")[0]);
-            String algoPath = String.join(".",
-                    manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
-                    manager.getPropertyValue(AppPropertyTypes.CLUSTERING_ALGO_DIR.name()),
-                    f.getName().split("\\.")[0]);
-            try {
-                algos_clustering.add((Class<Clusterer>) Class.forName(algoPath));
-                System.out.println("\t\t* Added " + algoPath);
-            } catch (ClassNotFoundException ex) {
-                System.out.println("\t\t* Class not found: " + algoPath);
+        if (files_clustering.length > 0) {
+            System.out.println("files clustering length sike: " + files_clustering[0]);
+            for (File f : files_clustering) {
+                String name = f.getName();
+                if (!name.substring(name.lastIndexOf('.'), name.length()).equals(".java")) { //not java file
+                    continue;
+                }
+                String algoPath = String.join(".",
+                        manager.getPropertyValue(AppPropertyTypes.ALGO_PREFIX.name()),
+                        manager.getPropertyValue(AppPropertyTypes.CLUSTERING_ALGO_DIR.name()),
+                        name.split("\\.")[0]);
+                try {
+                    algos_clustering.add((Class<Clusterer>) Class.forName(algoPath));
+                    System.out.println("\t\t* Added " + algoPath);
+                } catch (ClassNotFoundException ex) {
+                    System.out.println("\t\t* Class not found: " + algoPath);
+                }
             }
         }
     }
@@ -282,8 +290,10 @@ public final class AppUI extends UITemplate {
     public void disableRunButton() {
         //disable when run button was valid for class. but no longer valid
         PropertyManager manager = applicationTemplate.manager;
-        if (chooseAlgoType.getExpandedPane().getText().equals(
+        TitledPane expanded = chooseAlgoType.getExpandedPane();
+        if (expanded != null && expanded.getText().equals(
                 manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION_TITLE.name()))) {
+            System.out.println("YSERT");
             chooseAlgoType.setExpandedPane(clustering);
             runButton.setDisable(true);
         }
@@ -317,6 +327,8 @@ public final class AppUI extends UITemplate {
         PropertyManager manager = applicationTemplate.manager;
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
+        xAxis.setForceZeroInRange(false);
+        yAxis.setForceZeroInRange(false);
         chart = new LineChart<>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(AppPropertyTypes.CHART_TITLE.name()));
         //remove grid lines
@@ -522,13 +534,17 @@ public final class AppUI extends UITemplate {
                 gridpane_clustering);
 
         classification.setOnMouseClicked(e -> {
-            runButton.setDisable(!algorithms.containsKey(
-                    ((RadioButton) toggle_classification.getSelectedToggle()).getText()));
+            if (!algos_classification.isEmpty()) {
+                runButton.setDisable(!algorithms.containsKey(
+                        ((RadioButton) toggle_classification.getSelectedToggle()).getText()));
+            }
         }
         );
         clustering.setOnMouseClicked(e -> {
-            runButton.setDisable(!algorithms.containsKey(
-                    ((RadioButton) toggle_clustering.getSelectedToggle()).getText()));
+            if (!algos_clustering.isEmpty()) {
+                runButton.setDisable(!algorithms.containsKey(
+                        ((RadioButton) toggle_clustering.getSelectedToggle()).getText()));
+            }
         }
         );
         chooseAlgoType.getPanes()
@@ -649,8 +665,10 @@ public final class AppUI extends UITemplate {
         textToData();
         NumberAxis x_axis = (NumberAxis) chart.getXAxis();
         NumberAxis y_axis = (NumberAxis) chart.getYAxis();
-        x_axis.autoRangingProperty().set(false);
-        y_axis.autoRangingProperty().set(false);
+        x_axis.setForceZeroInRange(false);
+        y_axis.setForceZeroInRange(false);
+        x_axis.setAutoRanging(false);
+        y_axis.setAutoRanging(false);
         drawLine(x_axis.getLowerBound(), y_axis.getLowerBound(),
                 x_axis.getUpperBound(), y_axis.getUpperBound(),
                 data.get(0), data.get(1), data.get(2));
@@ -700,32 +718,31 @@ public final class AppUI extends UITemplate {
     }
 
     private void textToData() {
-        if (hasNewText) {
-            AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
-            dataComponent.clear();
-            try {
-                if (remainingData != null && remainingData.length > 0 && remainingDataInd < remainingData.length) {
-                    String toAdd = textArea.getText().charAt(textArea.getText().length() - 1) == '\n' ? "" : "\n";
-                    for (int i = remainingDataInd; i < remainingData.length; i++) {
-                        toAdd += remainingData[i] + "\n";
-                    }
-                    dataComponent.loadData(textArea.getText() + toAdd);
-                } else {
-                    dataComponent.loadData(textArea.getText());
+        AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
+        dataComponent.clear();
+        try {
+            if (remainingData != null && remainingData.length > 0 && remainingDataInd < remainingData.length) {
+                String toAdd = textArea.getText().charAt(textArea.getText().length() - 1) == '\n' ? "" : "\n";
+                for (int i = remainingDataInd; i < remainingData.length; i++) {
+                    toAdd += remainingData[i] + "\n";
                 }
-            } catch (Exception e) {
-                System.out.println(e);
-                return;
+                dataComponent.loadData(textArea.getText() + toAdd);
+            } else {
+                dataComponent.loadData(textArea.getText());
             }
-            chart.getData().clear();
-            dataComponent.displayData();
-            setDataPointListeners();
+        } catch (Exception e) {
+            System.out.println(e);
+            return;
         }
+        chart.getData().clear();
+        dataComponent.displayData();
+        setDataPointListeners();
     }
 
     private void setRunButtonActions() {
         PropertyManager manager = applicationTemplate.manager;
         runButton.setOnAction(event -> {
+            //System.out.println("dataSet: " + Arrays.asList(dataset.getLabels()));
             ((AppActions) applicationTemplate.getActionComponent()).setIsAlgoRunningProperty(true);
             classification_disabled = classification.isDisable();
             classification.setDisable(true);
@@ -746,6 +763,7 @@ public final class AppUI extends UITemplate {
             } else {
                 throw new IllegalStateException("wat did u pick?????");
             }
+            algo.setDataSet(dataset);
             nextButton.setVisible(!algo.tocontinue()); //visible when non-cont
             algo.subscribe(this);
             nextButton.setOnAction(e -> {
@@ -782,6 +800,8 @@ public final class AppUI extends UITemplate {
     private void setTitlePaneActions() {
         chooseAlgoType.expandedPaneProperty().addListener((observable, oldValue, newValue) -> {
             runButton.setVisible(newValue != null);
+            runButton.setDisable((newValue == classification && algos_classification.isEmpty())
+                    || (newValue == clustering && algos_clustering.isEmpty())); //selected titlepane is empty
         });
     }
 

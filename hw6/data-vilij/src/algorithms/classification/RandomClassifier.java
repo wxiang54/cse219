@@ -53,6 +53,11 @@ public class RandomClassifier extends Classifier {
         notifyAll();
     }
 
+    @Override
+    public void setDataSet(DataSet ds) {
+        dataset = ds;
+    }
+    
     public RandomClassifier(DataSet dataset,
             int maxIterations,
             int updateInterval,

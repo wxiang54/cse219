@@ -1,5 +1,6 @@
 package algorithms;
 
+import dataprocessors.DataSet;
 import ui.AppUI;
 
 /**
@@ -21,5 +22,5 @@ public interface Algorithm extends Runnable {
     void unsubscribe(AppUI ui);
     void publish();
     void done();
-    
+    void setDataSet(DataSet ds);
 }
